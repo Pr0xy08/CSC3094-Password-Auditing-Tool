@@ -1,8 +1,8 @@
 import customtkinter as ctk
 
-from Pages.Dashboard import Dashboard
-from Pages.Results import Results
-from Pages.Run import Run
+from frontend.dashboard import Dashboard
+from frontend.results import Results
+from frontend.run import Run
 
 # Initialize CustomTkinter
 ctk.set_appearance_mode("System")  # Dark
@@ -44,11 +44,11 @@ class Main(ctk.CTk):
         self.exit_button = ctk.CTkButton(self.sidebar, text="Exit", fg_color="red", command=self.quit)
         self.exit_button.grid(row=5, column=0, padx=20, pady=20)
 
-        # Main Content Area (Pages)
+        # Main Content Area (frontend)
         self.container = ctk.CTkFrame(self, fg_color="transparent")
         self.container.grid(row=0, column=1, sticky="nsew")
 
-        # Initialize Frames (Pages)
+        # Initialize Frames (frontend)
         self.pages = {}  # Store pages in a dictionary
         for Page in (Dashboard, Run, Results):
             page_name = Page.__name__
