@@ -40,8 +40,8 @@ class Main(ctk.CTk):
         self.Results_button = ctk.CTkButton(self.sidebar, text="Results", command=self.show_results)
         self.Results_button.grid(row=3, column=0, padx=20, pady=10)
 
-        # Logout / Exit Button
-        self.exit_button = ctk.CTkButton(self.sidebar, text="Exit", fg_color="red", command=self.quit)
+        # Exit Button
+        self.exit_button = ctk.CTkButton(self.sidebar, text="Exit", fg_color="red",  hover_color="darkred", command=self.quit)
         self.exit_button.grid(row=5, column=0, padx=20, pady=20)
 
         # Main Content Area (frontend)
