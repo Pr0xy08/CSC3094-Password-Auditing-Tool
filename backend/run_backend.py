@@ -5,9 +5,15 @@ import threading
 import time
 from tkinter import filedialog
 
+from ASCON.ascon import ascon_hash
+
 
 # Function to hash a string with a given algorithm
+
 def hash_string(hash_type, string):
+    """
+    Generalized hashing function that supports multiple algorithms.
+    """
     if hash_type == "MD5":
         return hashlib.md5(string.encode()).hexdigest()
     elif hash_type == "SHA-1":
@@ -16,6 +22,9 @@ def hash_string(hash_type, string):
         return hashlib.sha256(string.encode()).hexdigest()
     elif hash_type == "SHA-512":
         return hashlib.sha512(string.encode()).hexdigest()
+    elif hash_type == "Ascon-Hash256":
+        # Ensure the string is converted to bytes before passing to ascon_hash
+        return ascon_hash(message=string.encode(), variant="Ascon-Hash256", hashlength=32).hex()
     else:
         raise ValueError("Unsupported hash type")
 
