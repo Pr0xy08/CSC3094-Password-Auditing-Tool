@@ -21,7 +21,7 @@ def hash_string(hash_type, string):
 
 
 # Optimized Brute Force Function with threading and limits
-def brute_force_crack(target_hash, hash_type, max_length=6, timeout=30):
+def brute_force_crack(target_hash, hash_type, max_length=6, timeout=600):
     chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
     start_time = time.time()
     found = [None]  # Use a list to store the found password (mutable for threads)
@@ -47,12 +47,12 @@ def brute_force_crack(target_hash, hash_type, max_length=6, timeout=30):
     for thread in threads:
         thread.join()  # Wait for all threads to complete
 
-    return found[0] if found[0] else "Password not found (timed out or too complex)."
+    return found[0] if found[0] else "Password not found (timed out)."
 
 
 # Wordlist function: checks each word from the list
 def wordlist_crack(target_hash, hash_type, wordlist_path):
-    with open(wordlist_path, 'r', encoding='utf-8') as file:
+    with open(wordlist_path, 'r', encoding='utf-8', errors='ignore') as file:
         for line in file:
             word = line.strip()
             if hash_string(hash_type, word) == target_hash:
