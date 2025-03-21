@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from backend.run_backend import upload_file, run_cracker, hash_string
+from backend.run_backend import upload_file, run_cracker
 
 
 class Run(ctk.CTkFrame):
@@ -31,7 +31,7 @@ class Run(ctk.CTkFrame):
 
         # Hash Type Selection
         ctk.CTkLabel(input_frame, text="Select Hash Type:", font=("Arial", 14, "bold")).pack(anchor="w", padx=10)
-        self.select_hash_type = ctk.CTkComboBox(input_frame, values=["MD5", "SHA-1", "SHA-256", "SHA-512", "Ascon-Hash256"])
+        self.select_hash_type = ctk.CTkComboBox(input_frame, values=["MD5", "SHA-1", "SHA-256", "SHA-512", "Ascon-Hash256", "Ascon-XOF128", "Ascon-CXOF128"])
         self.select_hash_type.pack(padx=10, pady=5, fill="x")
         self.select_hash_type.set("MD5")
 

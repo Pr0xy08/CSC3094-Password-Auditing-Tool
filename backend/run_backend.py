@@ -10,9 +10,10 @@ from ASCON.ascon import ascon_hash
 
 # Function to hash a string with a given algorithm
 
-def hash_string(hash_type, string):
+
+def hash_string(hash_type, string, hash_length=32):
     """
-    Generalized hashing function that supports multiple algorithms.
+    Generalized hashing function that supports multiple algorithms, including Ascon variants.
     """
     if hash_type == "MD5":
         return hashlib.md5(string.encode()).hexdigest()
@@ -23,8 +24,12 @@ def hash_string(hash_type, string):
     elif hash_type == "SHA-512":
         return hashlib.sha512(string.encode()).hexdigest()
     elif hash_type == "Ascon-Hash256":
-        # Ensure the string is converted to bytes before passing to ascon_hash
         return ascon_hash(message=string.encode(), variant="Ascon-Hash256", hashlength=32).hex()
+    elif hash_type == "Ascon-XOF128":
+        # Ensure hash length is an integer
+        return ascon_hash(message=string.encode(), variant="Ascon-XOF128", hashlength=hash_length // 2).hex()
+    elif hash_type == "Ascon-CXOF128":
+        return ascon_hash(message=string.encode(), variant="Ascon-CXOF128", hashlength=hash_length // 2).hex()
     else:
         raise ValueError("Unsupported hash type")
 
@@ -40,7 +45,7 @@ def brute_force_crack(target_hash, hash_type, max_length=6, timeout=600):
             if found[0]:  # If another thread found the password, exit early
                 return
             attempt_str = ''.join(attempt)
-            if hash_string(hash_type, attempt_str) == target_hash:
+            if hash_string(hash_type, attempt_str, len(target_hash)) == target_hash:
                 found[0] = attempt_str
                 return
             # Stop brute force if timeout is reached
@@ -64,7 +69,7 @@ def wordlist_crack(target_hash, hash_type, wordlist_path):
     with open(wordlist_path, 'r', encoding='utf-8', errors='ignore') as file:
         for line in file:
             word = line.strip()
-            if hash_string(hash_type, word) == target_hash:
+            if hash_string(hash_type, word, len(target_hash)) == target_hash:
                 return word  # Found match
     return None  # Not found
 
