@@ -30,6 +30,9 @@ def hash_string(hash_type, string, hash_length=32):
         return ascon_hash(message=string.encode(), variant="Ascon-XOF128", hashlength=hash_length // 2).hex()
     elif hash_type == "Ascon-CXOF128":
         return ascon_hash(message=string.encode(), variant="Ascon-CXOF128", hashlength=hash_length // 2).hex()
+    elif hash_type == "NTLM":
+        password_bytes = string.encode('utf-16le')
+        return hashlib.new('md4', password_bytes).hexdigest().upper()
     else:
         raise ValueError("Unsupported hash type")
 
