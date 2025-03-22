@@ -1,8 +1,10 @@
 import hashlib
 import itertools
 import os
-import concurrent.futures
+import multiprocessing
 import time
+import asyncio
+import queue
 from tkinter import filedialog
 from ASCON.ascon import ascon_hash
 
@@ -28,26 +30,27 @@ def hash_string(hash_type, string, hash_length=32):
         raise ValueError("Unsupported hash type")
 
 
+def brute_force_worker(args):
+    target_hash, hash_type, attempt = args
+    attempt_str = ''.join(attempt)
+    if hash_string(hash_type, attempt_str, len(target_hash)) == target_hash:
+        return attempt_str
+    return None
+
+
 def brute_force_crack(target_hash, hash_type, max_length=6, timeout=600):
     chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
     start_time = time.time()
-
-    def attempt_crack(attempt):
-        if time.time() - start_time > timeout:
-            return None
-        attempt_str = ''.join(attempt)
-        if hash_string(hash_type, attempt_str, len(target_hash)) == target_hash:
-            return attempt_str
-        return None
-
-    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
+    with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
         for length in range(1, max_length + 1):
             attempts = itertools.product(chars, repeat=length)
-            futures = executor.map(attempt_crack, attempts)
-            for result in futures:
-                if result:
+            args = ((target_hash, hash_type, attempt) for attempt in attempts)
+            for result in pool.imap_unordered(brute_force_worker, args, chunksize=1000):
+                if result is not None:
                     return result
-    return "Password not found (timed out)."
+                if time.time() - start_time > timeout:
+                    return "Password not found (timed out)."
+    return "Password not found."
 
 
 def wordlist_crack(target_hash, hash_type, wordlist_path):
@@ -87,4 +90,3 @@ def run_cracker(mode, algorithm, target_hash_path, wordlist_path=None):
         results[target_hash] = result if result else "Password not found."
 
     return "\n".join([f"{h} -> {p}" for h, p in results.items()])
-
