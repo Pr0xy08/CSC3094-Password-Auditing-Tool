@@ -3,13 +3,11 @@ import itertools
 import os
 import multiprocessing
 import time
-import asyncio
-import queue
 from tkinter import filedialog
 from ASCON.ascon import ascon_hash
 
 
-def hash_string(hash_type, string, hash_length=32):
+def hash_string(hash_type, string, hash_length=32): # hashes string but chosen hash type
     if hash_type == "MD5":
         return hashlib.md5(string.encode()).hexdigest()
     elif hash_type == "SHA-1":
@@ -38,7 +36,7 @@ def brute_force_worker(args):
     return None
 
 
-def brute_force_crack(target_hash, hash_type, max_length=6, timeout=600):
+def brute_force_crack(target_hash, hash_type, max_length=6, timeout=30): # brute force function
     chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
     start_time = time.time()
     with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
@@ -49,11 +47,11 @@ def brute_force_crack(target_hash, hash_type, max_length=6, timeout=600):
                 if result is not None:
                     return result
                 if time.time() - start_time > timeout:
-                    return "Password not found (timed out)."
-    return "Password not found."
+                    return None
+    return None
 
 
-def wordlist_crack(target_hash, hash_type, wordlist_path):
+def wordlist_crack(target_hash, hash_type, wordlist_path): # wordlist function
     with open(wordlist_path, 'r', encoding='utf-8', errors='ignore') as file:
         for line in file:
             word = line.strip()
@@ -62,19 +60,19 @@ def wordlist_crack(target_hash, hash_type, wordlist_path):
     return None
 
 
-def upload_file():
+def upload_file(): # function used to upload wordlist and target hash file
     return filedialog.askopenfilename(filetypes=[("Text files", "*.txt")])
 
 
 def run_cracker(mode, algorithm, target_hash_path, wordlist_path=None):
     if not os.path.exists(target_hash_path):
-        return "Error: Target hash file not found!"
+        return {"error": "Target hash file not found!"}
 
     with open(target_hash_path, 'r', encoding='utf-8') as file:
         target_hashes = [line.strip() for line in file if line.strip()]
 
     if not target_hashes:
-        return "Error: No hashes found in the file!"
+        return {"error": "No hashes found in the file!"}
 
     results = {}
     for target_hash in target_hashes:
@@ -82,11 +80,13 @@ def run_cracker(mode, algorithm, target_hash_path, wordlist_path=None):
             result = brute_force_crack(target_hash, algorithm)
         elif mode == "Wordlist":
             if not wordlist_path or not os.path.exists(wordlist_path):
-                return "Error: Wordlist file not found!"
+                results[target_hash] = "Error: Wordlist file not found!"
+                continue
             result = wordlist_crack(target_hash, algorithm, wordlist_path)
         else:
-            return "Error: Invalid mode!"
+            results[target_hash] = "Error: Invalid mode!"
+            continue
 
         results[target_hash] = result if result else "Password not found."
 
-    return "\n".join([f"{h}: {p}" for h, p in results.items()])
+    return results # return dictionary of hash value and associated plaintext

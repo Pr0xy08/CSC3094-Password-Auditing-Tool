@@ -99,7 +99,7 @@ class Run(ctk.CTkFrame):
         result = run_cracker(mode, hash_type, self.target_hash_path, self.wordlist_path)
 
         # Navigate to the Results page and pass the result
-        self.controller.get_page("Results").display_result(result)
+        self.controller.get_page("Results").display_results(result)
         self.controller.show_page("Results")
 
         # Reset the buttons and file paths
