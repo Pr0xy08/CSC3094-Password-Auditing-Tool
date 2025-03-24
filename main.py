@@ -41,7 +41,7 @@ class Main(ctk.CTk):
         self.Results_button.grid(row=3, column=0, padx=20, pady=10)
 
         # Exit Button
-        self.exit_button = ctk.CTkButton(self.sidebar, text="Exit", fg_color="red",  hover_color="darkred", command=self.quit)
+        self.exit_button = ctk.CTkButton(self.sidebar, text="Exit", fg_color="red", hover_color="darkred", command=self.quit)
         self.exit_button.grid(row=5, column=0, padx=20, pady=20)
 
         # Main Content Area (frontend)
@@ -61,6 +61,10 @@ class Main(ctk.CTk):
         """Show a specific page."""
         frame = self.pages[page_name]
         frame.tkraise()  # Bring the frame to the front
+
+    def get_page(self, page_name):
+        """Retrieve a specific page instance."""
+        return self.pages.get(page_name)  # ✅ This is the missing method!
 
     def show_dashboard(self):
         self.show_page("Dashboard")

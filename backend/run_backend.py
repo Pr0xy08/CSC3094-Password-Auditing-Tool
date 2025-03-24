@@ -89,4 +89,4 @@ def run_cracker(mode, algorithm, target_hash_path, wordlist_path=None):
 
         results[target_hash] = result if result else "Password not found."
 
-    return "\n".join([f"{h} -> {p}" for h, p in results.items()])
+    return "\n".join([f"{h}: {p}" for h, p in results.items()])
