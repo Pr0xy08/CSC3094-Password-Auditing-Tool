@@ -5,6 +5,7 @@ import multiprocessing
 import time
 from tkinter import filedialog
 from ASCON.ascon import ascon_hash
+from passlib.hash import lmhash
 
 
 def hash_string(hash_type, string, hash_length=32): # hashes string but chosen hash type
@@ -24,6 +25,8 @@ def hash_string(hash_type, string, hash_length=32): # hashes string but chosen h
         return ascon_hash(message=string.encode(), variant="Ascon-CXOF128", hashlength=hash_length // 2).hex()
     elif hash_type == "NTLM":
         return hashlib.new('md4', string.encode('utf-16le')).hexdigest().upper()
+    elif hash_type == "LM":
+        return lmhash.hash(string).upper()
     else:
         raise ValueError("Unsupported hash type")
 
