@@ -39,7 +39,7 @@ class Run(ctk.CTkFrame):
         self.select_hash_type.set("MD5")
 
         # Timeout Selection
-        ctk.CTkLabel(input_frame, text="Select Timeout (seconds):", font=("Arial", 14, "bold")).pack(anchor="w", padx=10)
+        ctk.CTkLabel(input_frame, text="Select Timeout per password (seconds):", font=("Arial", 14, "bold")).pack(anchor="w", padx=10)
         self.timeout_input = ctk.CTkComboBox(
             input_frame, values=["10", "20", "30", "60", "120", "300"]
         )
