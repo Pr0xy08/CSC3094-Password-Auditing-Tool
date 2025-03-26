@@ -38,6 +38,14 @@ class Run(ctk.CTkFrame):
         self.select_hash_type.pack(padx=10, pady=5, fill="x")
         self.select_hash_type.set("MD5")
 
+        # Timeout Selection
+        ctk.CTkLabel(input_frame, text="Select Timeout (seconds):", font=("Arial", 14, "bold")).pack(anchor="w", padx=10)
+        self.timeout_input = ctk.CTkComboBox(
+            input_frame, values=["10", "20", "30", "60", "120", "300"]
+        )
+        self.timeout_input.pack(padx=10, pady=5, fill="x")
+        self.timeout_input.set("30")
+
         # File Upload Buttons
         upload_frame = ctk.CTkFrame(self)
         upload_frame.pack(pady=15, padx=20, fill="x")
@@ -86,6 +94,7 @@ class Run(ctk.CTkFrame):
     def run_crack(self):
         mode = self.select_mode.get()
         hash_type = self.select_hash_type.get()
+        timeout = int(self.timeout_input.get())
 
         if not self.target_hash_path:  # If no target hash is uploaded, produce an error
             self.controller.show_error("Error: Please upload a target hash file.")
@@ -96,7 +105,7 @@ class Run(ctk.CTkFrame):
             return
 
         # Call the cracking function
-        result = run_cracker(mode, hash_type, self.target_hash_path, self.wordlist_path)
+        result = run_cracker(mode, hash_type, self.target_hash_path, self.wordlist_path, timeout)
 
         # Navigate to the Results page and pass the result
         self.controller.get_page("Results").display_results(result)

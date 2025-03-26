@@ -57,7 +57,7 @@ def brute_force_crack(target_hash, hash_type, max_length=6, timeout=30):
     return None, time.time() - start_time, guesses
 
 
-def wordlist_crack(target_hash, hash_type, wordlist_path):
+def wordlist_crack(target_hash, hash_type, wordlist_path, timeout=30):
     start_time = time.time()
     guesses = 0
     with open(wordlist_path, 'r', encoding='utf-8', errors='ignore') as file:
@@ -67,6 +67,8 @@ def wordlist_crack(target_hash, hash_type, wordlist_path):
             if hash_string(hash_type, word, len(target_hash)) == target_hash:
                 elapsed = time.time() - start_time
                 return word, elapsed, guesses
+            if time.time() - start_time > timeout:
+                return None, time.time() - start_time, guesses
     return None, time.time() - start_time, guesses
 
 
@@ -74,7 +76,7 @@ def upload_file():
     return filedialog.askopenfilename(filetypes=[("Text files", "*.txt")])
 
 
-def run_cracker(mode, algorithm, target_hash_path, wordlist_path=None):
+def run_cracker(mode, algorithm, target_hash_path, wordlist_path=None, timeout=30):
     if not os.path.exists(target_hash_path):
         return {"error": "Target hash file not found!"}
 
@@ -90,7 +92,7 @@ def run_cracker(mode, algorithm, target_hash_path, wordlist_path=None):
 
     for target_hash in target_hashes:
         if mode == "Brute Force":
-            result, elapsed, guesses = brute_force_crack(target_hash, algorithm)
+            result, elapsed, guesses = brute_force_crack(target_hash, algorithm, timeout=timeout)
         elif mode == "Wordlist":
             if not wordlist_path or not os.path.exists(wordlist_path):
                 results[target_hash] = {
@@ -98,7 +100,7 @@ def run_cracker(mode, algorithm, target_hash_path, wordlist_path=None):
                     "time_taken": None
                 }
                 continue
-            result, elapsed, guesses = wordlist_crack(target_hash, algorithm, wordlist_path)
+            result, elapsed, guesses = wordlist_crack(target_hash, algorithm, wordlist_path, timeout=timeout)
         else:
             results[target_hash] = {
                 "password": "Error: Invalid mode!",
