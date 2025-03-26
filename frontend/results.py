@@ -1,5 +1,8 @@
 import time
 import customtkinter as ctk
+import matplotlib.pyplot as plt
+from collections import Counter
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 
 class Results(ctk.CTkFrame):
@@ -27,6 +30,10 @@ class Results(ctk.CTkFrame):
         self.overall_results_textbox = ctk.CTkTextbox(results_frame, width=350, height=175)
         self.overall_results_textbox.pack(side="left", padx=10)
 
+        # Frame for displaying the character frequency graph
+        self.graph_frame = ctk.CTkFrame(self)
+        self.graph_frame.pack(pady=20)
+
     def display_results(self, results):
         """Clear and display the results in the textboxes."""
         self.results_textbox.delete("1.0", "end")  # Clear previous content
@@ -50,6 +57,42 @@ class Results(ctk.CTkFrame):
         self.overall_results_textbox.insert("end", f"Algorithm: {overall['algorithm']}\n")
         self.overall_results_textbox.insert("end", f"Wordlist: {overall['wordlist']}\n")
         self.overall_results_textbox.insert("end", f"Total Guesses: {overall['total_guesses']}\n")
-        self.overall_results_textbox.insert("end", f"Start Time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(overall['start_time']))}\n")
-        self.overall_results_textbox.insert("end", f"Finish Time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(overall['finish_time']))}\n")
+        self.overall_results_textbox.insert("end",
+                                            f"Start Time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(overall['start_time']))}\n")
+        self.overall_results_textbox.insert("end",
+                                            f"Finish Time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(overall['finish_time']))}\n")
         self.overall_results_textbox.insert("end", f"Overall Time: {overall['overall_time']:.2f} seconds\n")
+
+        # Generate character frequency graph for passwords
+        self.display_character_frequency_graph(results)
+
+    def display_character_frequency_graph(self, results):
+        # Collect all the passwords, excluding "Password not found."
+        passwords = [data['password'] for hash_value, data in results['results'].items() if
+                     data['password'] != "Password not found."]
+        # Combine all passwords into a single string
+        all_passwords = "".join(passwords)
+
+        # Count character frequency
+        char_count = Counter(all_passwords)
+
+        # Sort characters by frequency (lowest to highest)
+        sorted_char_count = dict(sorted(char_count.items(), key=lambda x: x[1]))
+
+        # Create a figure for the plot with a smaller size
+        fig, ax = plt.subplots(figsize=(6, 4))  # Smaller graph size
+
+        # Plot the character frequency
+        ax.bar(sorted_char_count.keys(), sorted_char_count.values())
+
+        ax.set_xlabel('Characters')
+        ax.set_ylabel('Frequency')
+        ax.set_title('Character Frequency Distribution')
+
+        # Embed the plot into the tkinter window using a canvas
+        for widget in self.graph_frame.winfo_children():
+            widget.destroy()  # Remove any existing plot
+
+        canvas = FigureCanvasTkAgg(fig, self.graph_frame)
+        canvas.get_tk_widget().pack()
+        canvas.draw()
