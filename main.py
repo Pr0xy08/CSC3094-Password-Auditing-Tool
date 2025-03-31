@@ -5,7 +5,7 @@ from frontend.results import Results
 from frontend.run import Run
 
 # Initialize CustomTkinter
-ctk.set_appearance_mode("System")  # Dark
+ctk.set_appearance_mode("Dark")
 ctk.set_default_color_theme("green")
 
 
@@ -64,7 +64,7 @@ class Main(ctk.CTk):
 
     def get_page(self, page_name):
         """Retrieve a specific page instance."""
-        return self.pages.get(page_name)  # ✅ This is the missing method!
+        return self.pages.get(page_name)
 
     def show_dashboard(self):
         self.show_page("Dashboard")

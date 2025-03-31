@@ -30,15 +30,23 @@ class Results(ctk.CTkFrame):
         self.overall_results_textbox = ctk.CTkTextbox(results_frame, width=350, height=175)
         self.overall_results_textbox.pack(side="left", padx=10)
 
-        # Frame for displaying graphs side by side
+        # Frame for buttons to switch between graphs
+        self.graph_buttons_frame = ctk.CTkFrame(self)
+        self.graph_buttons_frame.pack(pady=10)
+
+        # Buttons for switching between graphs
+        self.char_freq_button = ctk.CTkButton(self.graph_buttons_frame, text="Character Frequency", command=self.show_character_frequency_graph)
+        self.char_freq_button.pack(side="left", padx=10)
+
+        self.pqi_button = ctk.CTkButton(self.graph_buttons_frame, text="PQI Graph", command=self.show_pqi_graph)
+        self.pqi_button.pack(side="left", padx=10)
+
+        # Frame for displaying the selected graph
         self.graph_frame = ctk.CTkFrame(self)
         self.graph_frame.pack(pady=20)
 
-        self.char_freq_frame = ctk.CTkFrame(self.graph_frame)
-        self.char_freq_frame.pack(side="left", padx=10)
-
-        self.pqi_frame = ctk.CTkFrame(self.graph_frame)
-        self.pqi_frame.pack(side="left", padx=10)
+        # Initially set the frame to be empty
+        self.graph_canvas = None
 
     def display_results(self, results):
         """Clear and display the results in the textboxes."""
@@ -67,9 +75,21 @@ class Results(ctk.CTkFrame):
         self.overall_results_textbox.insert("end", f"Finish Time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(overall['finish_time']))}\n")
         self.overall_results_textbox.insert("end", f"Overall Time: {overall['overall_time']:.2f} seconds\n")
 
-        # Generate graphs
-        self.display_character_frequency_graph(results)
-        self.display_password_quality_index_graph(results)
+        # Store the results for later use
+        self.results = results
+
+    def show_character_frequency_graph(self):
+        self._clear_graph_frame()
+        self.display_character_frequency_graph(self.results)
+
+    def show_pqi_graph(self):
+        self._clear_graph_frame()
+        self.display_password_quality_index_graph(self.results)
+
+    def _clear_graph_frame(self):
+        """Clears the current graph in the graph frame."""
+        for widget in self.graph_frame.winfo_children():
+            widget.destroy()
 
     def display_character_frequency_graph(self, results):
         passwords = [data['password'] for data in results['results'].values() if data['password'] != "Password not found."]
@@ -77,18 +97,19 @@ class Results(ctk.CTkFrame):
         char_count = Counter(all_passwords)
         sorted_char_count = dict(sorted(char_count.items(), key=lambda x: x[1]))
 
-        fig, ax = plt.subplots(figsize=(6, 4))
-        ax.bar(sorted_char_count.keys(), sorted_char_count.values())
-        ax.set_xlabel('Characters')
-        ax.set_ylabel('Frequency')
-        ax.set_title('Character Frequency Distribution')
+        # Set background color to match application dark theme (#2b2b2b)
+        fig, ax = plt.subplots(figsize=(10, 4))
+        fig.patch.set_facecolor('#2b2b2b')  # Set figure background color
+        ax.set_facecolor('#2b2b2b')  # Set axes background color
+        ax.bar(sorted_char_count.keys(), sorted_char_count.values(), color='lightgreen')  # Bars in a light color
+        ax.set_xlabel('Characters', color='white')
+        ax.set_ylabel('Frequency', color='white')
+        ax.set_title('Character Frequency Distribution', color='white')
+        ax.tick_params(axis='both', labelcolor='white')  # Set tick label color to white
 
-        for widget in self.char_freq_frame.winfo_children():
-            widget.destroy()
-
-        canvas = FigureCanvasTkAgg(fig, self.char_freq_frame)
-        canvas.get_tk_widget().pack()
-        canvas.draw()
+        self.graph_canvas = FigureCanvasTkAgg(fig, self.graph_frame)
+        self.graph_canvas.get_tk_widget().pack()
+        self.graph_canvas.draw()
 
     def display_password_quality_index_graph(self, results):
         def calculate_pqi(password):
@@ -100,14 +121,15 @@ class Results(ctk.CTkFrame):
         pqi_scores = {pwd: calculate_pqi(pwd) for pwd in passwords}
         sorted_pqi = dict(sorted(pqi_scores.items(), key=lambda x: x[1]))
 
-        fig, ax = plt.subplots(figsize=(6, 4))
-        ax.barh(list(sorted_pqi.keys()), list(sorted_pqi.values()))
-        ax.set_xlabel('Password Quality Index (PQI)')
-        ax.set_title('PQI for Each Password')
+        # Set background color to match application dark theme (#2b2b2b)
+        fig, ax = plt.subplots(figsize=(10, 4))
+        fig.patch.set_facecolor('#2b2b2b')  # Set figure background color
+        ax.set_facecolor('#2b2b2b')  # Set axes background color
+        ax.barh(list(sorted_pqi.keys()), list(sorted_pqi.values()), color='lightcoral')  # Bars in a light color
+        ax.set_xlabel('Password Quality Index (PQI)', color='white')
+        ax.set_title('PQI for Each Password', color='white')
+        ax.tick_params(axis='both', labelcolor='white')  # Set tick label color to white
 
-        for widget in self.pqi_frame.winfo_children():
-            widget.destroy()
-
-        canvas = FigureCanvasTkAgg(fig, self.pqi_frame)
-        canvas.get_tk_widget().pack()
-        canvas.draw()
+        self.graph_canvas = FigureCanvasTkAgg(fig, self.graph_frame)
+        self.graph_canvas.get_tk_widget().pack()
+        self.graph_canvas.draw()
