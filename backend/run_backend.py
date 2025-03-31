@@ -39,7 +39,7 @@ def brute_force_worker(args):
     return None
 
 
-def brute_force_crack(target_hash, hash_type, max_length=6, timeout=30):
+def brute_force_crack(target_hash, hash_type, max_length=6, timeout=None):
     chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
     start_time = time.time()
     guesses = 0
@@ -57,7 +57,7 @@ def brute_force_crack(target_hash, hash_type, max_length=6, timeout=30):
     return None, time.time() - start_time, guesses
 
 
-def wordlist_crack(target_hash, hash_type, wordlist_path, timeout=30):
+def wordlist_crack(target_hash, hash_type, wordlist_path, timeout=None):
     start_time = time.time()
     guesses = 0
     with open(wordlist_path, 'r', encoding='utf-8', errors='ignore') as file:
@@ -76,7 +76,7 @@ def upload_file():
     return filedialog.askopenfilename(filetypes=[("Text files", "*.txt")])
 
 
-def run_cracker(mode, algorithm, target_hash_path, wordlist_path=None, timeout=30):
+def run_cracker(mode, algorithm, target_hash_path, wordlist_path=None, timeout=None):
     if not os.path.exists(target_hash_path):
         return {"error": "Target hash file not found!"}
 

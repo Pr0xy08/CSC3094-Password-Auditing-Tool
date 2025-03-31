@@ -44,7 +44,7 @@ class Run(ctk.CTkFrame):
             input_frame, values=["5", "10", "20", "30", "60", "120", "300"]
         )
         self.timeout_input.pack(padx=10, pady=5, fill="x")
-        self.timeout_input.set("30")
+        self.timeout_input.set("5")
 
         # File Upload Buttons
         upload_frame = ctk.CTkFrame(self)
