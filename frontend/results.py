@@ -67,7 +67,7 @@ class Results(ctk.CTkFrame):
         for hash_value, data in results["results"].items():
             self.results_textbox.insert("end", f"Hash: {hash_value}\n")
             self.results_textbox.insert("end", f"Password: {data['password']}\n")
-            self.results_textbox.insert("end", f"Time Taken: {data['time_taken']:.2f} seconds\n")
+            self.results_textbox.insert("end", f"Time Taken: {data['time_taken']:.10f} seconds\n")
             self.results_textbox.insert("end", "-" * 80 + "\n")
 
         # Display overall info
@@ -76,12 +76,14 @@ class Results(ctk.CTkFrame):
         self.overall_results_textbox.insert("end", f"Mode: {overall['mode']}\n")
         self.overall_results_textbox.insert("end", f"Algorithm: {overall['algorithm']}\n")
         self.overall_results_textbox.insert("end", f"Wordlist: {overall['wordlist']}\n")
-        self.overall_results_textbox.insert("end", f"Total Guesses: {overall['total_guesses']}\n")
+        self.overall_results_textbox.insert("end", f"Total Hashes Attempted: {overall['total_hashes_attempts']}\n")
+        self.overall_results_textbox.insert("end", f"Average Hashes/Second: {overall['avg_hashes_per_second']:.2f}\n")
         self.overall_results_textbox.insert("end",
                                             f"Start Time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(overall['start_time']))}\n")
         self.overall_results_textbox.insert("end",
                                             f"Finish Time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(overall['finish_time']))}\n")
-        self.overall_results_textbox.insert("end", f"Overall Time: {overall['overall_time']:.2f} seconds\n")
+        self.overall_results_textbox.insert("end",
+                                            f"Overall Time: {overall['overall_time']:.10f} seconds\n")
 
         # Store the results for later use
         self.results = results
@@ -111,7 +113,7 @@ class Results(ctk.CTkFrame):
         sorted_char_count = dict(sorted(char_count.items(), key=lambda x: x[1]))
 
         # Set background color to match application dark theme (#2b2b2b)
-        fig, ax = plt.subplots(figsize=(10, 4))
+        fig, ax = plt.subplots(figsize=(10, 5))
         fig.patch.set_facecolor('#2b2b2b')  # Set figure background color
         ax.set_facecolor('#2b2b2b')  # Set axes background color
         ax.bar(sorted_char_count.keys(), sorted_char_count.values(), color='lightgreen')  # Bars in a light color
@@ -139,7 +141,7 @@ class Results(ctk.CTkFrame):
         sorted_pqi = dict(sorted(pqi_scores.items(), key=lambda x: x[1]))
 
         # Set background color to match application dark theme (#2b2b2b)
-        fig, ax = plt.subplots(figsize=(10, 4))
+        fig, ax = plt.subplots(figsize=(10, 5))
         fig.patch.set_facecolor('#2b2b2b')  # Set figure background color
         ax.set_facecolor('#2b2b2b')  # Set axes background color
         ax.barh(list(sorted_pqi.keys()), list(sorted_pqi.values()), color='lightcoral')  # Bars in a light color
@@ -158,12 +160,12 @@ class Results(ctk.CTkFrame):
         passwords = [data['password'] for data in results['results'].values() if
                      data['password'] != "Password not found."]
 
-        # Use zxcvbn to calculate password strength score (0-4)
+        # Use zxcvbn to calculate password strength score  (0-4)
         strength_scores = {pwd: zxcvbn.zxcvbn(pwd)['score'] for pwd in passwords}
         sorted_strength = dict(sorted(strength_scores.items(), key=lambda x: x[1]))
 
         # Set background color to match application dark theme (#2b2b2b)
-        fig, ax = plt.subplots(figsize=(10, 4))
+        fig, ax = plt.subplots(figsize=(10, 5))
         fig.patch.set_facecolor('#2b2b2b')  # Set figure background color
         ax.set_facecolor('#2b2b2b')  # Set axes background color
         ax.barh(list(sorted_strength.keys()), list(sorted_strength.values()), color='royalblue')  # Blue bars

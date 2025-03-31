@@ -88,11 +88,11 @@ def run_cracker(mode, algorithm, target_hash_path, wordlist_path=None, timeout=3
 
     results = {}
     start_time = time.time()
-    total_guesses = 0
+    total_hashes_attempts = 0  # Renamed to track total hash attempts
 
     for target_hash in target_hashes:
         if mode == "Brute Force":
-            result, elapsed, guesses = brute_force_crack(target_hash, algorithm, timeout=timeout)
+            result, elapsed, hashes_attempted = brute_force_crack(target_hash, algorithm, timeout=timeout)
         elif mode == "Wordlist":
             if not wordlist_path or not os.path.exists(wordlist_path):
                 results[target_hash] = {
@@ -100,7 +100,7 @@ def run_cracker(mode, algorithm, target_hash_path, wordlist_path=None, timeout=3
                     "time_taken": None
                 }
                 continue
-            result, elapsed, guesses = wordlist_crack(target_hash, algorithm, wordlist_path, timeout=timeout)
+            result, elapsed, hashes_attempted = wordlist_crack(target_hash, algorithm, wordlist_path, timeout=timeout)
         else:
             results[target_hash] = {
                 "password": "Error: Invalid mode!",
@@ -108,7 +108,7 @@ def run_cracker(mode, algorithm, target_hash_path, wordlist_path=None, timeout=3
             }
             continue
 
-        total_guesses += guesses
+        total_hashes_attempts += hashes_attempted
         results[target_hash] = {
             "password": result if result else "Password not found.",
             "time_taken": elapsed
@@ -116,6 +116,12 @@ def run_cracker(mode, algorithm, target_hash_path, wordlist_path=None, timeout=3
 
     finish_time = time.time()
     overall_time = finish_time - start_time
+
+    # Calculate average hashes per second (H/s)
+    if overall_time > 0:
+        avg_hashes_per_second = total_hashes_attempts / overall_time
+    else:
+        avg_hashes_per_second = 0
 
     return {
         "results": results,
@@ -126,6 +132,7 @@ def run_cracker(mode, algorithm, target_hash_path, wordlist_path=None, timeout=3
             "start_time": start_time,
             "finish_time": finish_time,
             "overall_time": overall_time,
-            "total_guesses": total_guesses
+            "total_hashes_attempts": total_hashes_attempts,  # Renamed field
+            "avg_hashes_per_second": avg_hashes_per_second  # Average hashes per second
         }
     }
