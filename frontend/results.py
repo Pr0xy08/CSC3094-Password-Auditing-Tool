@@ -213,14 +213,18 @@ class Results(ctk.CTkFrame):
         ax1.set_title('CPU Usage Over Time', color='white')
         ax1.set_xlabel('Time', color='white')
         ax1.set_ylabel('CPU Usage (%)', color='white')
-        ax1.grid(True, color='white')
+        ax1.grid(True, color='gray')
+        ax1.tick_params(axis='both', colors='white')
+        ax1.legend(facecolor='#2b2b2b', edgecolor='white', labelcolor='white')
 
         # Plot RAM usage
         ax2.plot(df['timestamp'], df['ram_usage'], label='RAM Usage (%)', color='green')
         ax2.set_title('RAM Usage Over Time', color='white')
         ax2.set_xlabel('Time', color='white')
         ax2.set_ylabel('RAM Usage (%)', color='white')
-        ax2.grid(True, color='white')
+        ax2.grid(True, color='gray')
+        ax2.tick_params(axis='both', colors='white')
+        ax2.legend(facecolor='#2b2b2b', edgecolor='white', labelcolor='white')
 
         plt.tight_layout()
 
