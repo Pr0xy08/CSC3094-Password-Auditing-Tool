@@ -95,7 +95,6 @@ def monitor_usage_periodically(log_file="usage_log.txt"):
             file.flush()  # Ensure data is written to the file immediately
             time.sleep(0.00005)  # Update every second
 
-
 def run_cracker(mode, algorithm, target_hash_path, wordlist_path=None, timeout=None):
     log_file = "usage_log.txt"
 
@@ -118,10 +117,11 @@ def run_cracker(mode, algorithm, target_hash_path, wordlist_path=None, timeout=N
     start_time = time.time()
     total_hashes_attempts = 0
 
-    # Start monitoring CPU and RAM usage in a daemon process
+    # Start monitoring CPU and RAM usage in a separate process
     monitor_process = multiprocessing.Process(target=monitor_usage_periodically, args=(log_file,))
-    monitor_process.daemon = True
     monitor_process.start()
+
+    time.sleep(1)  # Allow the monitor process to start logging
 
     # Run the cracker algorithm
     for target_hash in target_hashes:
@@ -154,8 +154,11 @@ def run_cracker(mode, algorithm, target_hash_path, wordlist_path=None, timeout=N
     # Calculate average hashes per second (H/s)
     avg_hashes_per_second = total_hashes_attempts / overall_time if overall_time > 0 else 0
 
-    # Optional: Sleep for a while to give the monitoring process time to run
-    time.sleep(5)  # Give it time to write some data
+    time.sleep(1)  # Allow the monitor process to start logging
+
+    # Stop the monitoring process
+    monitor_process.terminate()
+    monitor_process.join()
 
     return {
         "results": results,
