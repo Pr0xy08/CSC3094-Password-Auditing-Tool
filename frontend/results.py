@@ -4,6 +4,9 @@ import matplotlib.pyplot as plt
 from collections import Counter
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import zxcvbn  # For password strength scoring
+import pandas as pd
+import matplotlib
+matplotlib.use('TkAgg')  # Use TkAgg backend for matplotlib
 
 
 class Results(ctk.CTkFrame):
@@ -46,6 +49,10 @@ class Results(ctk.CTkFrame):
         self.password_strength_button = ctk.CTkButton(self.graph_buttons_frame, text="Password zxcvbn Score",
                                                       command=self.show_password_zxcvbn_graph)
         self.password_strength_button.pack(side="left", padx=10)
+
+        self.system_usage_button = ctk.CTkButton(self.graph_buttons_frame, text="System Usage Graph",
+                                                 command=self.show_system_usage_graph)
+        self.system_usage_button.pack(side="left", padx=10)
 
         # Frame for displaying the selected graph
         self.graph_frame = ctk.CTkFrame(self)
@@ -99,6 +106,10 @@ class Results(ctk.CTkFrame):
     def show_password_zxcvbn_graph(self):
         self._clear_graph_frame()
         self.display_password_zxcvbn_graph(self.results)
+
+    def show_system_usage_graph(self):
+        self._clear_graph_frame()
+        self.visualize_system_usage()
 
     def _clear_graph_frame(self):
         """Clears the current graph in the graph frame."""
@@ -173,6 +184,47 @@ class Results(ctk.CTkFrame):
         ax.set_title('Password Strength for Each Password', color='white')
         ax.tick_params(axis='both', labelcolor='white')  # Set tick label color to white
 
+        self.graph_canvas = FigureCanvasTkAgg(fig, self.graph_frame)
+        self.graph_canvas.get_tk_widget().pack()
+        self.graph_canvas.draw()
+
+        # Close the figure after rendering it
+        plt.close(fig)  # Prevents the figure from staying open in memory
+
+    def visualize_system_usage(self, log_file="usage_log.txt"):
+        # Read the logged data into a DataFrame
+        df = pd.read_csv(log_file, names=["timestamp", "cpu_usage", "ram_usage"])
+
+        # Debug: Print data to ensure it's being updated
+        print("Data from log file:")
+        print(df.tail())  # Print the last few rows to verify new data
+
+        # Convert timestamps to readable format (this can be very important)
+        df['timestamp'] = pd.to_datetime(df['timestamp'], unit='s')
+
+        # Plot the data
+        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 5))
+        fig.patch.set_facecolor('#2b2b2b')  # Set figure background color
+        ax1.set_facecolor('#2b2b2b')  # Set axes background color
+        ax2.set_facecolor('#2b2b2b')  # Set axes background color
+
+        # Plot CPU usage
+        ax1.plot(df['timestamp'], df['cpu_usage'], label='CPU Usage (%)', color='blue')
+        ax1.set_title('CPU Usage Over Time', color='white')
+        ax1.set_xlabel('Time', color='white')
+        ax1.set_ylabel('CPU Usage (%)', color='white')
+        ax1.grid(True, color='white')
+
+        # Plot RAM usage
+        ax2.plot(df['timestamp'], df['ram_usage'], label='RAM Usage (%)', color='green')
+        ax2.set_title('RAM Usage Over Time', color='white')
+        ax2.set_xlabel('Time', color='white')
+        ax2.set_ylabel('RAM Usage (%)', color='white')
+        ax2.grid(True, color='white')
+
+        plt.tight_layout()
+
+        # Display the graph in the tkinter window
         self.graph_canvas = FigureCanvasTkAgg(fig, self.graph_frame)
         self.graph_canvas.get_tk_widget().pack()
         self.graph_canvas.draw()

@@ -3,6 +3,7 @@ import itertools
 import os
 import multiprocessing
 import time
+import psutil
 from tkinter import filedialog
 from ASCON.ascon import ascon_hash
 from passlib.hash import lmhash
@@ -76,7 +77,34 @@ def upload_file():
     return filedialog.askopenfilename(filetypes=[("Text files", "*.txt")])
 
 
+def monitor_system_usage():
+    """Function to monitor CPU and RAM utilization."""
+    cpu_usage = psutil.cpu_percent(interval=0.00005)  # CPU usage over 1 second
+    ram_usage = psutil.virtual_memory().percent  # RAM usage as a percentage
+    return cpu_usage, ram_usage
+
+
+def monitor_usage_periodically(log_file="usage_log.txt"):
+    """Periodically monitor CPU and RAM usage and log it to a file."""
+    with open(log_file, 'a') as file:  # Open in append mode
+        while True:
+            cpu_usage, ram_usage = monitor_system_usage()
+            timestamp = time.time()
+            # Log the current timestamp, CPU, and RAM usage
+            file.write(f"{timestamp},{cpu_usage},{ram_usage}\n")
+            file.flush()  # Ensure data is written to the file immediately
+            time.sleep(0.00005)  # Update every second
+
+
 def run_cracker(mode, algorithm, target_hash_path, wordlist_path=None, timeout=None):
+    log_file = "usage_log.txt"
+
+    # Clear or create the log file
+    if os.path.exists(log_file):
+        os.remove(log_file)
+    with open(log_file, 'w') as file:
+        file.write("")  # Start fresh
+
     if not os.path.exists(target_hash_path):
         return {"error": "Target hash file not found!"}
 
@@ -88,8 +116,14 @@ def run_cracker(mode, algorithm, target_hash_path, wordlist_path=None, timeout=N
 
     results = {}
     start_time = time.time()
-    total_hashes_attempts = 0  # Renamed to track total hash attempts
+    total_hashes_attempts = 0
 
+    # Start monitoring CPU and RAM usage in a daemon process
+    monitor_process = multiprocessing.Process(target=monitor_usage_periodically, args=(log_file,))
+    monitor_process.daemon = True
+    monitor_process.start()
+
+    # Run the cracker algorithm
     for target_hash in target_hashes:
         if mode == "Brute Force":
             result, elapsed, hashes_attempted = brute_force_crack(target_hash, algorithm, timeout=timeout)
@@ -118,10 +152,10 @@ def run_cracker(mode, algorithm, target_hash_path, wordlist_path=None, timeout=N
     overall_time = finish_time - start_time
 
     # Calculate average hashes per second (H/s)
-    if overall_time > 0:
-        avg_hashes_per_second = total_hashes_attempts / overall_time
-    else:
-        avg_hashes_per_second = 0
+    avg_hashes_per_second = total_hashes_attempts / overall_time if overall_time > 0 else 0
+
+    # Optional: Sleep for a while to give the monitoring process time to run
+    time.sleep(5)  # Give it time to write some data
 
     return {
         "results": results,
@@ -132,7 +166,7 @@ def run_cracker(mode, algorithm, target_hash_path, wordlist_path=None, timeout=N
             "start_time": start_time,
             "finish_time": finish_time,
             "overall_time": overall_time,
-            "total_hashes_attempts": total_hashes_attempts,  # Renamed field
-            "avg_hashes_per_second": avg_hashes_per_second  # Average hashes per second
+            "total_hashes_attempts": total_hashes_attempts,
+            "avg_hashes_per_second": avg_hashes_per_second
         }
     }
