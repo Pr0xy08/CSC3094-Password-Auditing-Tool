@@ -95,6 +95,7 @@ def monitor_usage_periodically(log_file="usage_log.txt"):
             file.flush()  # Ensure data is written to the file immediately
             time.sleep(0.00005)  # Update every second
 
+
 def run_cracker(mode, algorithm, target_hash_path, wordlist_path=None, timeout=None):
     log_file = "usage_log.txt"
 
