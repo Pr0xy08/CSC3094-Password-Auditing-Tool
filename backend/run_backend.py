@@ -154,7 +154,7 @@ def run_cracker(mode, algorithm, target_hash_path, wordlist_path=None, timeout=N
     # Calculate average hashes per second (H/s)
     avg_hashes_per_second = total_hashes_attempts / overall_time if overall_time > 0 else 0
 
-    time.sleep(1)  # Allow the monitor process to start logging
+    time.sleep(1)  # Allow the monitor process to complete logging
 
     # Stop the monitoring process
     monitor_process.terminate()
