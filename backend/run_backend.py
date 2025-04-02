@@ -79,7 +79,7 @@ def upload_file():
 
 def monitor_system_usage():
     """Function to monitor CPU and RAM utilization."""
-    cpu_usage = psutil.cpu_percent(interval=0.00005)  # CPU usage over 1 second
+    cpu_usage = psutil.cpu_percent(interval=0)  # CPU usage over 1 second
     ram_usage = psutil.virtual_memory().percent  # RAM usage as a percentage
     return cpu_usage, ram_usage
 
@@ -87,13 +87,18 @@ def monitor_system_usage():
 def monitor_usage_periodically(log_file="usage_log.txt"):
     """Periodically monitor CPU and RAM usage and log it to a file."""
     with open(log_file, 'a') as file:  # Open in append mode
+        # Log an initial entry before the loop starts
+        timestamp = time.time()
+        cpu_usage, ram_usage = monitor_system_usage()
+        file.write(f"{timestamp},{cpu_usage},{ram_usage}\n")
+        file.flush()
+
         while True:
-            cpu_usage, ram_usage = monitor_system_usage()
             timestamp = time.time()
-            # Log the current timestamp, CPU, and RAM usage
+            cpu_usage, ram_usage = monitor_system_usage()
             file.write(f"{timestamp},{cpu_usage},{ram_usage}\n")
-            file.flush()  # Ensure data is written to the file immediately
-            time.sleep(0.00005)  # Update every second
+            file.flush()
+            time.sleep(0.0001)  # interval between logs, still need to tweak this
 
 
 def run_cracker(mode, algorithm, target_hash_path, wordlist_path=None, timeout=None):
@@ -114,15 +119,15 @@ def run_cracker(mode, algorithm, target_hash_path, wordlist_path=None, timeout=N
     if not target_hashes:
         return {"error": "No hashes found in the file!"}
 
-    results = {}
-    start_time = time.time()
-    total_hashes_attempts = 0
-
     # Start monitoring CPU and RAM usage in a separate process
     monitor_process = multiprocessing.Process(target=monitor_usage_periodically, args=(log_file,))
     monitor_process.start()
 
-    time.sleep(1)  # Allow the monitor process to start logging
+    time.sleep(3)  # Allow the monitor process to start logging before audit commences
+
+    results = {}
+    overall_start_time = time.time() # Then begin overall timer
+    total_hashes_attempts = 0
 
     # Run the cracker algorithm
     for target_hash in target_hashes:
@@ -149,13 +154,13 @@ def run_cracker(mode, algorithm, target_hash_path, wordlist_path=None, timeout=N
             "time_taken": elapsed
         }
 
-    finish_time = time.time()
-    overall_time = finish_time - start_time
+    overall_finish_time = time.time()
+    overall_time_taken = overall_finish_time - overall_start_time
 
     # Calculate average hashes per second (H/s)
-    avg_hashes_per_second = total_hashes_attempts / overall_time if overall_time > 0 else 0
+    avg_hashes_per_second = total_hashes_attempts / overall_time_taken if overall_time_taken > 0 else 0
 
-    time.sleep(1)  # Allow the monitor process to complete logging
+    time.sleep(1)  # Allow the monitor process to complete logging and store data to txt file
 
     # Stop the monitoring process
     monitor_process.terminate()
@@ -167,9 +172,9 @@ def run_cracker(mode, algorithm, target_hash_path, wordlist_path=None, timeout=N
             "mode": mode,
             "algorithm": algorithm,
             "wordlist": wordlist_path,
-            "start_time": start_time,
-            "finish_time": finish_time,
-            "overall_time": overall_time,
+            "start_time": overall_start_time,
+            "finish_time": overall_finish_time,
+            "overall_time": overall_time_taken,
             "total_hashes_attempts": total_hashes_attempts,
             "avg_hashes_per_second": avg_hashes_per_second
         }

@@ -200,7 +200,7 @@ class Results(ctk.CTkFrame):
         print(df.tail())  # Print the last few rows to verify new data
 
         # Convert timestamps to readable format (this can be very important)
-        df['timestamp'] = pd.to_datetime(df['timestamp'], unit='s').dt.tz_localize('UTC').dt.tz_convert('Europe/London')
+        df['timestamp'] = pd.to_datetime(df['timestamp'], unit='s')
 
         # Plot the data
         fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 5))
