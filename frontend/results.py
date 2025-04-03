@@ -59,6 +59,12 @@ class Results(ctk.CTkFrame):
         self.password_length_button = ctk.CTkButton(self.graph_buttons_frame, text="Password Length Graph",
                                                     command=self.show_password_length_graph)
         self.password_length_button.pack(side="left", padx=10)
+
+        # Button for showing the Success Rate Pie Chart
+        self.success_rate_button = ctk.CTkButton(self.graph_buttons_frame, text="Success Rate Pie Chart",
+                                                 command=self.show_success_rate_pie_chart)
+        self.success_rate_button.pack(side="left", padx=10)
+
         # Frame for displaying the selected graph
         self.graph_frame = ctk.CTkFrame(self)
         self.graph_frame.pack(pady=20)
@@ -67,7 +73,7 @@ class Results(ctk.CTkFrame):
         self.graph_canvas = None
 
     def display_results(self, results):
-        """Clear and display the results in the textboxes."""
+        """Clear and display the results in the textboxes and update graphs."""
         self.results_textbox.delete("1.0", "end")
         self.overall_results_textbox.delete("1.0", "end")
 
@@ -100,6 +106,21 @@ class Results(ctk.CTkFrame):
         # Store the results for later use
         self.results = results
 
+        # Automatically update the graphs with new data
+        self.update_graphs(results)
+
+    def update_graphs(self, results):
+        """Automatically update the graphs with the new data."""
+        self._clear_graph_frame()  # Clear the current graph
+
+        # Update the graphs based on the new data
+        self.display_success_rate_pie_chart(results)  # Update the success rate pie chart
+        self.show_character_frequency_graph()  # Update the character frequency graph
+        self.show_pqi_graph()  # Update the PQI graph
+        self.show_password_zxcvbn_graph()  # Update the zxcvbn password strength graph
+        self.show_system_usage_graph()  # Update the system usage graph
+        self.show_password_length_graph()  # Update the password length graph
+
     def show_character_frequency_graph(self):
         self._clear_graph_frame()
         self.display_character_frequency_graph(self.results)
@@ -120,10 +141,10 @@ class Results(ctk.CTkFrame):
         self._clear_graph_frame()
         self.display_password_length_graph(self.results)
 
-    def _clear_graph_frame(self):
-        """Clears the current graph in the graph frame."""
-        for widget in self.graph_frame.winfo_children():
-            widget.destroy()
+    # Function to display the Success Rate Pie Chart
+    def show_success_rate_pie_chart(self):
+        self._clear_graph_frame()
+        self.display_success_rate_pie_chart(self.results)
 
     def display_character_frequency_graph(self, results):
         passwords = [data['password'] for data in results['results'].values() if
@@ -297,3 +318,39 @@ class Results(ctk.CTkFrame):
 
         # Close the figure after rendering it
         plt.close(fig)  # Prevents the figure from staying open in memory
+
+        # Function to create the Success Rate Pie Chart
+
+    def display_success_rate_pie_chart(self, results):
+        # Define success and failure counts
+        success_count = sum(1 for data in results['results'].values() if data['password'] != "Password not found.")
+        failure_count = len(results['results']) - success_count
+
+        # Data for the pie chart
+        labels = ['Success', 'Failure']
+        sizes = [success_count, failure_count]
+        colors = ['#4CAF50', '#F44336']  # Green for success, red for failure
+
+        # Set background color to match application dark theme (#2b2b2b)
+        fig, ax = plt.subplots(figsize=(10, 5))
+        fig.patch.set_facecolor('#2b2b2b')  # Set figure background color
+        ax.set_facecolor('#2b2b2b')  # Set axes background color
+
+        # Create the pie chart
+        ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90, colors=colors, textprops={'color': 'white'}, wedgeprops={'edgecolor': 'black'})
+
+        # Set title and style
+        ax.set_title('Success Rate', color='white')
+
+        # Display the graph in the tkinter window
+        self.graph_canvas = FigureCanvasTkAgg(fig, self.graph_frame)
+        self.graph_canvas.get_tk_widget().pack()
+        self.graph_canvas.draw()
+
+        # Close the figure after rendering it
+        plt.close(fig)  # Prevents the figure from staying open in memory
+
+    def _clear_graph_frame(self):
+        """Clears the current graph in the graph frame."""
+        for widget in self.graph_frame.winfo_children():
+            widget.destroy()
