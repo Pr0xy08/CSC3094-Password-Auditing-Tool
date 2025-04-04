@@ -1,6 +1,5 @@
 import customtkinter as ctk
-
-from frontend.dashboard import Dashboard
+from frontend.help import Help
 from frontend.results import Results
 from frontend.run import Run
 
@@ -31,17 +30,18 @@ class Main(ctk.CTk):
         self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
 
         # Sidebar Buttons
-        self.dashboard_button = ctk.CTkButton(self.sidebar, text="Dashboard", command=self.show_dashboard)
-        self.dashboard_button.grid(row=1, column=0, padx=20, pady=10)
-
         self.run_button = ctk.CTkButton(self.sidebar, text="Run", command=self.show_run)
-        self.run_button.grid(row=2, column=0, padx=20, pady=10)
+        self.run_button.grid(row=1, column=0, padx=10, pady=10)
 
-        self.Results_button = ctk.CTkButton(self.sidebar, text="Results", command=self.show_results)
-        self.Results_button.grid(row=3, column=0, padx=20, pady=10)
+        self.results_button = ctk.CTkButton(self.sidebar, text="Results", command=self.show_results)
+        self.results_button.grid(row=2, column=0, padx=10, pady=10)
+
+        self.help_button = ctk.CTkButton(self.sidebar, text="Help", command=self.show_help)
+        self.help_button.grid(row=3, column=0, padx=10, pady=10)
 
         # Exit Button
-        self.exit_button = ctk.CTkButton(self.sidebar, text="Exit", fg_color="red", hover_color="darkred", command=self.quit)
+        self.exit_button = ctk.CTkButton(self.sidebar, text="Exit", fg_color="red", hover_color="darkred",
+                                         command=self.quit)
         self.exit_button.grid(row=5, column=0, padx=20, pady=20)
 
         # Main Content Area (frontend)
@@ -50,12 +50,12 @@ class Main(ctk.CTk):
 
         # Initialize Frames (frontend)
         self.pages = {}  # Store pages in a dictionary
-        for Page in (Dashboard, Run, Results):
+        for Page in (Run, Results, Help):
             page_name = Page.__name__
             self.pages[page_name] = Page(parent=self.container, controller=self)
             self.pages[page_name].grid(row=0, column=0, sticky="nsew")
 
-        self.show_dashboard()  # Start with dashboard Page
+        self.show_run()  # Start with dashboard Page
 
     def show_page(self, page_name):
         """Show a specific page."""
@@ -66,14 +66,14 @@ class Main(ctk.CTk):
         """Retrieve a specific page instance."""
         return self.pages.get(page_name)
 
-    def show_dashboard(self):
-        self.show_page("Dashboard")
-
     def show_run(self):
         self.show_page("Run")
 
     def show_results(self):
         self.show_page("Results")
+
+    def show_help(self):
+        self.show_page("Help")
 
 
 if __name__ == "__main__":

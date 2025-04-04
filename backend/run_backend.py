@@ -9,7 +9,7 @@ from ASCON.ascon import ascon_hash
 from passlib.hash import lmhash
 
 
-def hash_string(hash_type, string, hash_length=32):
+def hash_string(hash_type, string, hash_length=32): # add more hashes here
     if hash_type == "MD5":
         return hashlib.md5(string.encode()).hexdigest()
     elif hash_type == "SHA-1":
