@@ -9,25 +9,25 @@ from ASCON.ascon import ascon_hash
 from passlib.hash import lmhash
 
 
-def hash_string(hash_type, string, hash_length=32): # add more hashes here
+def hash_string(hash_type, string, hash_length=32): # function that hashes string by chosen hash type
     if hash_type == "MD5":
-        return hashlib.md5(string.encode()).hexdigest()
+        return hashlib.md5(string.encode()).hexdigest() # hash to md5
     elif hash_type == "SHA-1":
-        return hashlib.sha1(string.encode()).hexdigest()
+        return hashlib.sha1(string.encode()).hexdigest() # hash to sha1
     elif hash_type == "SHA-256":
-        return hashlib.sha256(string.encode()).hexdigest()
+        return hashlib.sha256(string.encode()).hexdigest() # hash to sha256
     elif hash_type == "SHA-512":
-        return hashlib.sha512(string.encode()).hexdigest()
+        return hashlib.sha512(string.encode()).hexdigest() # hash to sha512
     elif hash_type == "Ascon-Hash256":
-        return ascon_hash(message=string.encode(), variant="Ascon-Hash256", hashlength=32).hex()
+        return ascon_hash(message=string.encode(), variant="Ascon-Hash256", hashlength=32).hex() # hash to ascon 256
     elif hash_type == "Ascon-XOF128":
-        return ascon_hash(message=string.encode(), variant="Ascon-XOF128", hashlength=hash_length // 2).hex()
+        return ascon_hash(message=string.encode(), variant="Ascon-XOF128", hashlength=hash_length // 2).hex() # hash to ascon xof128
     elif hash_type == "Ascon-CXOF128":
-        return ascon_hash(message=string.encode(), variant="Ascon-CXOF128", hashlength=hash_length // 2).hex()
+        return ascon_hash(message=string.encode(), variant="Ascon-CXOF128", hashlength=hash_length // 2).hex() # hash to ascon cxof128
     elif hash_type == "NTLM":
-        return hashlib.new('md4', string.encode('utf-16le')).hexdigest().upper()
+        return hashlib.new('md4', string.encode('utf-16le')).hexdigest().upper() # hash to ntlm
     elif hash_type == "LM":
-        return lmhash.hash(string).upper()
+        return lmhash.hash(string).upper() # hash to ntlm
     else:
         raise ValueError("Unsupported hash type")
 

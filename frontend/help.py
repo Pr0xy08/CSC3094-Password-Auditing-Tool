@@ -6,7 +6,7 @@ class Help(ctk.CTkFrame):
         super().__init__(parent)
         self.controller = controller
 
-        # Scrollable frame to contain all help content
+        # Scrollable frame
         scrollable_frame = ctk.CTkScrollableFrame(self, width=800, height=600)
         scrollable_frame.pack(expand=True, fill="both", padx=20, pady=20)
 
