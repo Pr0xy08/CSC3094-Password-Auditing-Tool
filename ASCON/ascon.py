@@ -13,15 +13,7 @@ debugpermutation = False
 # === Ascon hash/xof ===
 
 def ascon_hash(message, variant="Ascon-Hash256", hashlength=32):
-    """
-    Ascon hash function and extendable-output function.
-    message: a bytes object of arbitrary length
-    variant: "Ascon-Hash256" (with 256-bit output for 128-bit security), "Ascon-XOF128",
-     or "Ascon-CXOF128" (both with arbitrary output length, security=min(128, bitlen/2))
-    hashlength: the requested output bytelength (must be 32 for variant "Ascon-Hash256";
-    can be arbitrary for Ascon-XOF128, but should be >= 32 for 128-bit security)
-    returns a bytes object containing the hash tag
-    """
+
     versions = {"Ascon-Hash256": 2,
                 "Ascon-XOF128": 3,
                 "Ascon-CXOF128": 4}
