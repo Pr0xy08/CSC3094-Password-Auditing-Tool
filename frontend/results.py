@@ -243,14 +243,10 @@ class Results(ctk.CTkFrame):
         plt.close(fig)
 
     def visualize_system_usage(self, log_file="usage_log.txt"):
-        # Read the logged data into a DataFrame
+        # Read the timestamp, cpu usage and ram usage data into a DataFrame
         df = pd.read_csv(log_file, names=["timestamp", "cpu_usage", "ram_usage"])
 
-        # Debug: Print data to ensure it's being updated
-        print("Data from log file:")
-        print(df.tail())  # Print the last few rows to verify new data
-
-        # Convert timestamps to readable format (this can be very important)
+        # Convert timestamps to readable format
         df['timestamp'] = pd.to_datetime(df['timestamp'], unit='s')
 
         # Plot the data
