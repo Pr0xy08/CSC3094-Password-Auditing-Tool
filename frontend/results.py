@@ -337,7 +337,8 @@ class Results(ctk.CTkFrame):
         ax.set_facecolor('#2b2b2b')  # Set axes background color
 
         # Create the pie chart
-        ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90, colors=colors, textprops={'color': 'white'}, wedgeprops={'edgecolor': 'black'})
+        ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90, colors=colors,
+               textprops={'color': 'white'}, wedgeprops={'edgecolor': 'black'})
 
         # Set title
         ax.set_title('Success Rate', color='white')
