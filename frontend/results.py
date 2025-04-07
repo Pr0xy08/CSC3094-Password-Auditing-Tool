@@ -329,7 +329,7 @@ class Results(ctk.CTkFrame):
         # Data for the pie chart
         labels = ['Success', 'Failure']
         sizes = [success_count, failure_count]
-        colors = ['#4CAF50', '#F44336']  # Green for success, red for failure
+        colors = ['#4CAF50', '#F44336']  # Green and red
 
         # Set background color to match application dark theme (#2b2b2b)
         fig, ax = plt.subplots(figsize=(10, 5))
@@ -339,7 +339,7 @@ class Results(ctk.CTkFrame):
         # Create the pie chart
         ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90, colors=colors, textprops={'color': 'white'}, wedgeprops={'edgecolor': 'black'})
 
-        # Set title and style
+        # Set title
         ax.set_title('Success Rate', color='white')
 
         # Display the graph in the tkinter window
