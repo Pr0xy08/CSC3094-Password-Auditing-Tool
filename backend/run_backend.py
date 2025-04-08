@@ -41,13 +41,13 @@ def brute_force_worker(args):
 
 
 def brute_force_crack(target_hash, hash_type, max_length=6, timeout=None):
-    chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789" # all possible characters (not using special characters)
+    chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789" # all possible characters (no special chars)
     start_time = time.time() # begin timer
     guesses = 0 # start attempt counter
     with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool: # create multiprocessing worker pool
         for length in range(1, max_length + 1): # iterate over all possible string lengths (max 6)
             attempts = itertools.product(chars, repeat=length)
-            args = ((target_hash, hash_type, attempt) for attempt in attempts) # tuple containing target, hash type and current character set attempt
+            args = ((target_hash, hash_type, attempt) for attempt in attempts) # create args for worker function
             for result in pool.imap_unordered(brute_force_worker, args, chunksize=1000): # distribute work to worker
                 guesses += 1 # each time add to guesses
                 if result is not None: # if results is found
