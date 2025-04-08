@@ -286,16 +286,33 @@ class Results(ctk.CTkFrame):
     def display_password_length_graph(self, results):
         """Displays a histogram of password lengths with tooltips."""
         passwords = [data['password'] for data in results['results'].values() if
-                     data['password'] != "Password not found."]
+                        data['password'] != "Password not found."]
 
         password_lengths = [len(pwd) for pwd in passwords]
 
-        # Set background color to match application dark theme (#2b2b2b)
+        # If password_lengths is empty, just return or display an empty graph
+        if not password_lengths:
+            fig, ax = plt.subplots(figsize=(10, 5))
+            fig.patch.set_facecolor('#2b2b2b')  # Set figure background color
+            ax.set_facecolor('#2b2b2b')  # Set axes background color
+            ax.set_xlabel('Password Length', color='white')
+            ax.set_ylabel('Frequency', color='white')
+            ax.set_title('Distribution of Password Lengths', color='white')
+            ax.tick_params(axis='both', labelcolor='white')  # Set tick label color to white
+            ax.set_xticks([])  # Remove x-axis ticks for an empty graph
+            ax.set_yticks([])  # Remove y-axis ticks for an empty graph
+            self.graph_canvas = FigureCanvasTkAgg(fig, self.graph_frame)
+            self.graph_canvas.get_tk_widget().pack()
+            self.graph_canvas.draw()
+            plt.close(fig)  # Prevents the figure from staying open in memory
+            return
+
+            # Proceed to plot the histogram if password_lengths is not empty
         fig, ax = plt.subplots(figsize=(10, 5))
         fig.patch.set_facecolor('#2b2b2b')  # Set figure background color
         ax.set_facecolor('#2b2b2b')  # Set axes background color
         n, bins, patches = ax.hist(password_lengths, bins=range(min(password_lengths), max(password_lengths) + 2),
-                                   color='skyblue', edgecolor='white', alpha=0.75)
+                                       color='skyblue', edgecolor='white', alpha=0.75)
 
         ax.set_xlabel('Password Length', color='white')
         ax.set_ylabel('Frequency', color='white')
@@ -305,8 +322,9 @@ class Results(ctk.CTkFrame):
         # Add tooltips using mplcursors
         mplcursors.cursor(patches, hover=True).connect(
             "add",
-            lambda sel: sel.annotation.set_text(f'Length: {int(bins[sel.index])} - {int(bins[sel.index + 1])} chars\n'
-                                                f'Frequency: {int(n[sel.index])}'))
+            lambda sel: sel.annotation.set_text(
+                f'Length: {int(bins[sel.index])} - {int(bins[sel.index + 1])} chars\n'
+                f'Frequency: {int(n[sel.index])}'))
 
         self.graph_canvas = FigureCanvasTkAgg(fig, self.graph_frame)
         self.graph_canvas.get_tk_widget().pack()
