@@ -34,27 +34,27 @@ def hash_string(hash_type, string, hash_length=32): # function that hashes strin
 
 def brute_force_worker(args):
     target_hash, hash_type, attempt = args
-    attempt_str = ''.join(attempt)
-    if hash_string(hash_type, attempt_str, len(target_hash)) == target_hash:
-        return attempt_str
+    attempt_str = ''.join(attempt) # turns character set into string
+    if hash_string(hash_type, attempt_str, len(target_hash)) == target_hash: # compares hashes characters against target hash
+        return attempt_str # if they are  equal return the plaintext
     return None
 
 
 def brute_force_crack(target_hash, hash_type, max_length=6, timeout=None):
-    chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-    start_time = time.time()
-    guesses = 0
-    with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
-        for length in range(1, max_length + 1):
+    chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789" # all possible characters (not using special characters)
+    start_time = time.time() # begin timer
+    guesses = 0 # start attempt counter
+    with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool: # create multiprocessing worker pool
+        for length in range(1, max_length + 1): # iterate over all possible string lengths (max 6)
             attempts = itertools.product(chars, repeat=length)
-            args = ((target_hash, hash_type, attempt) for attempt in attempts)
-            for result in pool.imap_unordered(brute_force_worker, args, chunksize=1000):
-                guesses += 1
-                if result is not None:
-                    elapsed = time.time() - start_time
-                    return result, elapsed, guesses
-                if time.time() - start_time > timeout:
-                    return None, time.time() - start_time, guesses
+            args = ((target_hash, hash_type, attempt) for attempt in attempts) # tuple containing target, hash type and current character set attempt
+            for result in pool.imap_unordered(brute_force_worker, args, chunksize=1000): # distribute work to worker
+                guesses += 1 # each time add to guesses
+                if result is not None: # if results is found
+                    elapsed = time.time() - start_time # finish timer
+                    return result, elapsed, guesses # return results, total time and total guesses
+                if time.time() - start_time > timeout: # finish timer
+                    return None, time.time() - start_time, guesses # return only time and guesses
     return None, time.time() - start_time, guesses
 
 
