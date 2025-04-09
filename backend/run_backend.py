@@ -78,28 +78,26 @@ def upload_file():
     return filedialog.askopenfilename(filetypes=[("Text files", "*.txt")])
 
 
-def monitor_system_usage():
-    """Function to monitor CPU and RAM utilization."""
-    cpu_usage = psutil.cpu_percent(interval=0)  # CPU usage over 1 second
-    ram_usage = psutil.virtual_memory().percent  # RAM usage as a percentage
-    return cpu_usage, ram_usage
+def monitor_system_usage(): # function takes a reading of CPU and RAM Usage
+    cpu_usage = psutil.cpu_percent()
+    ram_usage = psutil.virtual_memory().percent
+    return cpu_usage, ram_usage # returns both
 
 
 def monitor_usage_periodically(log_file="usage_log.txt"):
-    """Periodically monitor CPU and RAM usage and log it to a file."""
     with open(log_file, 'a') as file:  # Open in append mode
         # Log an initial entry before the loop starts
-        timestamp = time.time()
-        cpu_usage, ram_usage = monitor_system_usage()
+        timestamp = time.time() # take time measurement
+        cpu_usage, ram_usage = monitor_system_usage() # take cpu and memory measurement
         file.write(f"{timestamp},{cpu_usage},{ram_usage}\n")
-        file.flush()
+        file.flush() # immediately write contents
 
         while True:
-            timestamp = time.time()
-            cpu_usage, ram_usage = monitor_system_usage()
+            timestamp = time.time() # takes time measurement
+            cpu_usage, ram_usage = monitor_system_usage() # take cpu and memory measurement
             file.write(f"{timestamp},{cpu_usage},{ram_usage}\n")
-            file.flush()
-            time.sleep(0.0001)  # interval between logs, still need to tweak this
+            file.flush() # immediately write contents
+            time.sleep(0.0001)  # interval between next log, still need to tweak this
 
 
 def run_cracker(mode, algorithm, target_hash_path, wordlist_path=None, timeout=None):
