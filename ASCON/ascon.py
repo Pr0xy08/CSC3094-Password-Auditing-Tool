@@ -13,7 +13,14 @@ debugpermutation = False
 # === Ascon hash/xof ===
 
 def ascon_hash(message, variant="Ascon-Hash256", hashlength=32):
-
+    """
+        Ascon hash function and extendable-output function.
+        message: a bytes object of arbitrary length
+        variant: "Ascon-Hash256" (with 256-bit output for 128-bit security), "Ascon-XOF128", or "Ascon-CXOF128" (both with arbitrary output length, security=min(128, bitlen/2))
+        hashlength: the requested output bytelength (must be 32 for variant "Ascon-Hash256"; can be arbitrary for Ascon-XOF128, but should be >= 32 for 128-bit security)
+        customization: a bytes object of at most 256 bytes specifying the customization string (only for Ascon-CXOF128)
+        returns a bytes object containing the hashtag
+        """
     versions = {"Ascon-Hash256": 2,
                 "Ascon-XOF128": 3,
                 "Ascon-CXOF128": 4}
@@ -466,8 +473,8 @@ def demo_mac(variant="Ascon-Mac", taglength=16):
 
 
 if __name__ == "__main__":
-    demo_aead("Ascon-AEAD128")
-    demo_hash("Ascon-Hash256")
+    # demo_aead("Ascon-AEAD128")
+    # demo_hash("Ascon-Hash256")
     demo_hash("Ascon-XOF128")
     demo_hash("Ascon-CXOF128")
-    demo_mac("Ascon-Mac")
+    # demo_mac("Ascon-Mac")

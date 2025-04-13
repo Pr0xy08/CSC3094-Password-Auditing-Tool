@@ -6,10 +6,10 @@ import time
 import psutil
 from tkinter import filedialog
 from ASCON.ascon import ascon_hash
-from passlib.hash import lmhash
+from passlib.hash import lmhash, nthash
 
 
-def hash_string(hash_type, string, hash_length=32): # function that hashes string by chosen hash type
+def hash_string(hash_type, string, hash_length): # hash type = chosen type, string = string to hash, hash_length = length of target hash
     if hash_type == "MD5":
         return hashlib.md5(string.encode()).hexdigest() # hash to md5
     elif hash_type == "SHA-1":
@@ -19,13 +19,13 @@ def hash_string(hash_type, string, hash_length=32): # function that hashes strin
     elif hash_type == "SHA-512":
         return hashlib.sha512(string.encode()).hexdigest() # hash to sha512
     elif hash_type == "Ascon-Hash256":
-        return ascon_hash(message=string.encode(), variant="Ascon-Hash256", hashlength=32).hex() # hash to ascon 256
+        return ascon_hash(message=string.encode(), variant="Ascon-Hash256", hashlength=32).hex() # hash to ascon 256, fixed hash length of 32
     elif hash_type == "Ascon-XOF128":
         return ascon_hash(message=string.encode(), variant="Ascon-XOF128", hashlength=hash_length // 2).hex() # hash to ascon xof128
     elif hash_type == "Ascon-CXOF128":
         return ascon_hash(message=string.encode(), variant="Ascon-CXOF128", hashlength=hash_length // 2).hex() # hash to ascon cxof128
     elif hash_type == "NTLM":
-        return hashlib.new('md4', string.encode('utf-16le')).hexdigest().upper() # hash to ntlm
+        return nthash.hash(string).upper()
     elif hash_type == "LM":
         return lmhash.hash(string).upper() # hash to ntlm
     else:
