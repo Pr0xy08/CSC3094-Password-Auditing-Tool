@@ -107,7 +107,7 @@ def test_wordlist_crack_performance_precise(tmp_path, hash_type, target_word, wo
 
     elapsed_time = end - start
     total_attempts = result[2]
-    hash_rate = total_attempts / elapsed_time if elapsed_time > 0 else 0
+    hashes_per_second = total_attempts / elapsed_time if elapsed_time > 0 else 0
 
     average_memory = sum(memory_samples) / len(memory_samples) if memory_samples else 0
     average_cpu = sum(cpu_samples) / len(cpu_samples) if cpu_samples else 0
@@ -115,9 +115,8 @@ def test_wordlist_crack_performance_precise(tmp_path, hash_type, target_word, wo
     assert result[0] == target_word
     assert total_attempts <= wordlist_size
 
-    print(f"\n[{hash_type} Performance]| "
-          f"Total Guesses: {total_attempts}| "
-          f"Hash Rate: {hash_rate:,.2f} H/s| "
-          f"Average CPU: {average_cpu:.2f}%| "
-          f"Average Mem: {average_memory:.5f} MB| "
-          f"Total Time: {elapsed_time:.5f}s|")
+    print(f"{hash_type:<15}: {hashes_per_second:,.2f} H/s | "
+          f"Average CPU: {average_cpu:.2f}% | "
+          f"Average Mem: {average_memory:.5f} MB | "
+          f"Total Time: {elapsed_time:.5f}s")
+
