@@ -9,6 +9,10 @@ from ASCON.ascon import ascon_hash
 from passlib.hash import lmhash, nthash
 
 
+# TODO: Add more hashes support
+# TODO: make performance of both functions better (GPU or more CPU optimisation)
+# TODO: Look into ASCON overheads and making it faster
+
 def hash_string(hash_type, string,
                 hash_length):  # hash type = chosen type, string = string to hash, hash_length = length of target hash
     if hash_type == "MD5":

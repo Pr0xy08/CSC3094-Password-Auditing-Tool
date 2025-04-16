@@ -3,6 +3,12 @@ from backend.run_backend import upload_file, run_cracker
 import threading
 
 
+# TODO: Add missing input or invalid input error handling popup
+# TODO: maybe add a loading bar/estimated time ect
+# TODO: maybe add an attempt counter
+# TODO: maybe add a way to pause or cancel the audit
+
+
 class Run(ctk.CTkFrame):
 
     def __init__(self, parent, controller):
