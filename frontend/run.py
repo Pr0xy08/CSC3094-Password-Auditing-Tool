@@ -1,5 +1,6 @@
 import customtkinter as ctk
 from backend.run_backend import upload_file, run_cracker
+import threading
 
 
 class Run(ctk.CTkFrame):
@@ -33,13 +34,15 @@ class Run(ctk.CTkFrame):
         ctk.CTkLabel(input_frame, text="Select Hash Type:", font=("Arial", 14, "bold")).pack(anchor="w", padx=10)
         self.select_hash_type = ctk.CTkComboBox(
             input_frame,
-            values=["MD5", "SHA-1", "SHA-256", "SHA-512", "Ascon-Hash256", "Ascon-XOF128", "Ascon-CXOF128", "NTLM", "LM"]
+            values=["MD5", "SHA-1", "SHA-256", "SHA-512", "Ascon-Hash256", "Ascon-XOF128", "Ascon-CXOF128", "NTLM",
+                    "LM"]
         )
         self.select_hash_type.pack(padx=10, pady=5, fill="x")
         self.select_hash_type.set("MD5")
 
         # Timeout Selection
-        ctk.CTkLabel(input_frame, text="Select Timeout per password (seconds):", font=("Arial", 14, "bold")).pack(anchor="w", padx=10)
+        ctk.CTkLabel(input_frame, text="Select Timeout per password (seconds):", font=("Arial", 14, "bold")).pack(
+            anchor="w", padx=10)
         self.timeout_input = ctk.CTkComboBox(
             input_frame, values=["5", "10", "20", "30", "60", "120", "300"]
         )
@@ -68,6 +71,11 @@ class Run(ctk.CTkFrame):
         )
         self.run_button.pack(padx=25, pady=25, fill="x")
 
+        # Loading indicator (Initially hidden)
+        self.loading_label = ctk.CTkLabel(self, text="", font=("Arial", 14), text_color="white")
+        self.loading_label.pack(pady=10)
+        self.loading_label.pack_forget()  # Hide it initially
+
         # Initially update wordlist button visibility
         self.toggle_wordlist_button()
 
@@ -90,7 +98,7 @@ class Run(ctk.CTkFrame):
         if self.wordlist_path:
             self.upload_wordlist.configure(text="Wordlist Uploaded", fg_color="green")
 
-    # Function ran when run button is pressed
+    # Function to run the cracking process in the background thread
     def run_crack(self):
         mode = self.select_mode.get()
         hash_type = self.select_hash_type.get()
@@ -104,9 +112,40 @@ class Run(ctk.CTkFrame):
             self.controller.show_error("Error: Please upload a wordlist file.")
             return
 
-        # Call the cracking function
+        # Show the loading indicator
+        self.loading_label.pack(pady=10)
+        self.loading_text = "Loading."  # Start with one dot
+
+        # Start the dot animation
+        self.animate_loading_dots()
+
+        # Run cracking process in the background
+        threading.Thread(target=self.run_crack_in_background, args=(mode, hash_type, timeout)).start()
+
+    # Function that runs the cracker in the background and updates GUI once done
+    def run_crack_in_background(self, mode, hash_type, timeout):
         result = run_cracker(mode, hash_type, self.target_hash_path, self.wordlist_path, timeout)
 
+        # Update GUI safely after processing is done
+        self.after(0, self.display_results, result)
+
+    # Function to animate the loading dots
+    def animate_loading_dots(self):
+        # Cycle through "Loading.", "Loading.." and "Loading..."
+        if self.loading_text == "Loading.":
+            self.loading_text = "Loading.."
+        elif self.loading_text == "Loading..":
+            self.loading_text = "Loading..."
+        else:
+            self.loading_text = "Loading."
+
+        self.loading_label.configure(text=self.loading_text)
+
+        # Call this method again in 500ms (adjustable)
+        self.after(500, self.animate_loading_dots)
+
+    # Function to display results and hide loading label
+    def display_results(self, result):
         # Navigate to the Results page and pass the result
         self.controller.get_page("Results").display_results(result)
         self.controller.show_page("Results")
@@ -116,6 +155,9 @@ class Run(ctk.CTkFrame):
         self.wordlist_path = None
         self.upload_target_hash.configure(text="Upload Target Hash (txt file)", fg_color="#007ACC")
         self.upload_wordlist.configure(text="Upload Wordlist (txt file)", fg_color="#007ACC")
+
+        # Hide the loading label after the process is complete
+        self.loading_label.pack_forget()
 
         # Update wordlist button visibility after reset
         self.toggle_wordlist_button()
