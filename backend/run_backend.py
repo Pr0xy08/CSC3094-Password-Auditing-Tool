@@ -9,7 +9,6 @@ from ASCON.ascon import ascon_hash
 from passlib.hash import lmhash, nthash
 
 
-# TODO: Add more hashes support
 # TODO: make performance of both functions better (GPU or more CPU optimisation)
 # TODO: Look into ASCON overheads and making it faster
 
@@ -126,20 +125,22 @@ def brute_force_crack(target_hash, hash_type, max_length=6, timeout=None):
 
 
 def wordlist_crack(target_hash, hash_type, wordlist_path, timeout=None):
-    start_time = time.time()
+    start_time = time.perf_counter()
+    timeout_threshold = start_time + timeout if timeout else None
     guesses = 0
+    target_len = len(target_hash)
 
-    with open(wordlist_path, 'r', encoding='utf-8', errors='ignore') as file:  # read wordlist file
-        for line in file:  # for each word in wordlist
-            word = line.strip()  # strip the line
-            guesses += 1  # add +1 guess counter
-            if hash_string(hash_type, word,
-                           len(target_hash)) == target_hash:  # run hash the word and compare it to the target
-                elapsed = time.time() - start_time  # if it's the same stop the timer
-                return word, elapsed, guesses  # return the plaintext, total time and number of guesses
-            if time.time() - start_time > timeout:  # if the timeout is surpassed
-                return None, time.time() - start_time, guesses  # only return the time and the number of guesses made
-    return None, time.time() - start_time, guesses
+    with open(wordlist_path, 'r', encoding='utf-8', errors='ignore') as file:
+        for line in file:
+            word = line.rstrip('\n')
+            guesses += 1
+            if hash_string(hash_type, word, target_len) == target_hash:
+                elapsed = time.perf_counter() - start_time
+                return word, elapsed, guesses
+            if timeout_threshold and time.perf_counter() > timeout_threshold:
+                return None, time.perf_counter() - start_time, guesses
+
+    return None, time.perf_counter() - start_time, guesses
 
 
 def upload_file():
