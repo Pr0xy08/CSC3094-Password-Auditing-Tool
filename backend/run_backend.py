@@ -44,6 +44,10 @@ def hash_string(hash_type, string,
         return hashlib.blake2b(string.encode()).hexdigest()
     elif hash_type == "BLAKE2s":
         return hashlib.blake2s(string.encode()).hexdigest()
+    elif hash_type == "SHA3-256": # also newly added both SHA-3 256 and 512
+        return hashlib.sha3_256(string.encode()).hexdigest()
+    elif hash_type == "SHA3-512":
+        return hashlib.sha3_512(string.encode()).hexdigest()
     else:
         raise ValueError("Unsupported hash type")
 

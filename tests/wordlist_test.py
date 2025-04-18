@@ -20,6 +20,8 @@ from backend.run_backend import wordlist_crack, hash_string
     ("SHA-384", "test"),
     ("BLAKE2b", "test"),
     ("BLAKE2s", "test"),
+    ("SHA3-256", "test"),
+    ("SHA3-512", "test"),
 ])
 def test_wordlist_crack_with_supported_hashes(tmp_path, hash_type, input_str):
     # Create a temporary wordlist file with some sample words
@@ -97,6 +99,8 @@ def test_wordlist_crack_timeout(tmp_path):
     ("SHA-384", "99999", 10 ** 5),
     ("BLAKE2b", "99999", 10 ** 5),
     ("BLAKE2s", "99999", 10 ** 5),
+    ("SHA3-256", "99999", 10 ** 5),
+    ("SHA3-512", "99999", 10 ** 5),
 ])
 def test_wordlist_crack_performance_precise(tmp_path, hash_type, target_word, wordlist_size):
     # Create a large wordlist file with numbers from 0 to wordlist_size - 1

@@ -41,7 +41,7 @@ class Run(ctk.CTkFrame):
         self.select_hash_type = ctk.CTkComboBox(
             input_frame,
             values=["MD5", "SHA-1", "SHA-224", "SHA-256", "SHA-512", "SHA-384", "Ascon-Hash256", "Ascon-XOF128", "Ascon-CXOF128", "NTLM",
-                    "LM", "BLAKE2b", "BLAKE2s"]
+                    "LM", "BLAKE2b", "BLAKE2s", "SHA3-256", "SHA3-512"]
         )
         self.select_hash_type.pack(padx=10, pady=5, fill="x")
         self.select_hash_type.set("MD5")
