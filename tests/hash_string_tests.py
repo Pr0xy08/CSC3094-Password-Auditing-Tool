@@ -19,6 +19,10 @@ from backend.run_backend import hash_string
     ("Ascon-CXOF128", "test", "8a054af4c5f8b03e2085c68595da50f95516717ba787e5b217455d1608a5fe25"),
     ("NTLM", "test", "0CB6948805F797BF2A82807973B89537"),
     ("LM", "test", "01FC5A6BE7BC6929AAD3B435B51404EE"),
+    ("SHA-224", "test", "90a3ed9e32b2aaf4c61c410eb925426119e1a9dc53d4286ade99a809"),
+    ("SHA-384", "test", "768412320f7b0aa5812fce428dc4706b3cae50e02a64caa16a782249bfe8efc4b7ef1ccb126255d196047dfedf17a0a9"),
+    ("BLAKE2b", "test", "a71079d42853dea26e453004338670a53814b78137ffbed07603a41d76a483aa9bc33b582f77d30a65e6f29a896c0411f38312e1d66e0bf16386c86a89bea572"),
+    ("BLAKE2s", "test", "f308fc02ce9172ad02a7d75800ecfc027109bc67987ea32aba9b8dcc7b10150e"),
 ])
 def test_known_hashes(hash_type, input_str, expected):
     # Ensure the generated hash matches the expected result
@@ -30,7 +34,7 @@ def test_hash_string_performance():
     hash_types = [
         "MD5", "SHA-1", "SHA-256", "SHA-512",
         "Ascon-Hash256", "Ascon-XOF128", "Ascon-CXOF128",
-        "NTLM", "LM"
+        "NTLM", "LM", "SHA-224", "SHA-384", "BLAKE2b", "BLAKE2s"
     ]
     # Consistent input string for benchmarking
     input_str = "The quick brown fox jumps over the lazy dog"

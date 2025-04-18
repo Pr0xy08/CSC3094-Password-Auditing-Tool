@@ -16,6 +16,10 @@ from backend.run_backend import wordlist_crack, hash_string
     ("Ascon-CXOF128", "test"),
     ("NTLM", "test"),
     ("LM", "test"),
+    ("SHA-224", "test"),
+    ("SHA-384", "test"),
+    ("BLAKE2b", "test"),
+    ("BLAKE2s", "test"),
 ])
 def test_wordlist_crack_with_supported_hashes(tmp_path, hash_type, input_str):
     # Create a temporary wordlist file with some sample words
@@ -89,6 +93,10 @@ def test_wordlist_crack_timeout(tmp_path):
     ("Ascon-CXOF128", "99999", 10 ** 5),
     ("NTLM", "99999", 10 ** 5),
     ("LM", "99999", 10 ** 5),
+    ("SHA-224", "99999", 10 ** 5),
+    ("SHA-384", "99999", 10 ** 5),
+    ("BLAKE2b", "99999", 10 ** 5),
+    ("BLAKE2s", "99999", 10 ** 5),
 ])
 def test_wordlist_crack_performance_precise(tmp_path, hash_type, target_word, wordlist_size):
     # Create a large wordlist file with numbers from 0 to wordlist_size - 1

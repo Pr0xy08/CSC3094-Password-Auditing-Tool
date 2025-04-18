@@ -40,8 +40,8 @@ class Run(ctk.CTkFrame):
         ctk.CTkLabel(input_frame, text="Select Hash Type:", font=("Arial", 14, "bold")).pack(anchor="w", padx=10)
         self.select_hash_type = ctk.CTkComboBox(
             input_frame,
-            values=["MD5", "SHA-1", "SHA-256", "SHA-512", "Ascon-Hash256", "Ascon-XOF128", "Ascon-CXOF128", "NTLM",
-                    "LM"]
+            values=["MD5", "SHA-1", "SHA-224", "SHA-256", "SHA-512", "SHA-384", "Ascon-Hash256", "Ascon-XOF128", "Ascon-CXOF128", "NTLM",
+                    "LM", "BLAKE2b", "BLAKE2s"]
         )
         self.select_hash_type.pack(padx=10, pady=5, fill="x")
         self.select_hash_type.set("MD5")

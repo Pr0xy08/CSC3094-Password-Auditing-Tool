@@ -19,8 +19,12 @@ def hash_string(hash_type, string,
         return hashlib.md5(string.encode()).hexdigest()  # hash to md5
     elif hash_type == "SHA-1":
         return hashlib.sha1(string.encode()).hexdigest()  # hash to sha1
+    elif hash_type == "SHA-224":
+        return hashlib.sha224(string.encode()).hexdigest()  # newly added - hash to sha224
     elif hash_type == "SHA-256":
         return hashlib.sha256(string.encode()).hexdigest()  # hash to sha256
+    elif hash_type == "SHA-384":
+        return hashlib.sha384(string.encode()).hexdigest()  # newly added - hash to sha-384
     elif hash_type == "SHA-512":
         return hashlib.sha512(string.encode()).hexdigest()  # hash to sha512
     elif hash_type == "Ascon-Hash256":
@@ -36,6 +40,10 @@ def hash_string(hash_type, string,
         return nthash.hash(string).upper()
     elif hash_type == "LM":
         return lmhash.hash(string).upper()  # hash to ntlm
+    elif hash_type == "BLAKE2b": # newly added both BLAKE2b and 2s 512-bit and 256-bit respectively
+        return hashlib.blake2b(string.encode()).hexdigest()
+    elif hash_type == "BLAKE2s":
+        return hashlib.blake2s(string.encode()).hexdigest()
     else:
         raise ValueError("Unsupported hash type")
 
@@ -100,7 +108,7 @@ def brute_force_crack(target_hash, hash_type, max_length=6, timeout=None):
                 break
             if timeout and (time.time() - start_time > timeout):
                 break
-            time.sleep(0.1)
+            time.sleep(0.001)
     finally:
         stop_event.set()
         producer.terminate()

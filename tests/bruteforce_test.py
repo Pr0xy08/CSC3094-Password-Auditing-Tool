@@ -16,6 +16,10 @@ from backend.run_backend import brute_force_crack, hash_string
     ("Ascon-CXOF128", "ab", 2),
     ("NTLM", "ab", 2),
     ("LM", "ab", 2),
+    ("SHA-224", "ab", 2),
+    ("SHA-384", "ab", 2),
+    ("BLAKE2b", "ab", 2),
+    ("BLAKE2s", "ab", 2),
 ])
 def test_brute_force_crack_known_values(hash_type, input_str, max_length):
     # Hash the known input to use as the cracking target
@@ -69,6 +73,10 @@ def test_brute_force_crack_timeout():
     ("Ascon-CXOF128", "abcd", 4),
     ("NTLM", "abcd", 4),
     ("LM", "abcd", 4),
+    ("SHA-224", "abcd", 4),
+    ("SHA-384", "abcd", 4),
+    ("BLAKE2b", "abcd", 4),
+    ("BLAKE2s", "abcd", 4),
 ])
 def test_brute_force_crack_performance(hash_type, target_word, max_length):
     # Prepare the hash of the known target word
