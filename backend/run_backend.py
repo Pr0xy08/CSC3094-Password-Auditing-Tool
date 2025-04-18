@@ -81,7 +81,7 @@ def generate_attempts(queue, chars, max_length, stop_event):
 
 def brute_force_crack(target_hash, hash_type, max_length=6, timeout=None):
     chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-    start_time = time.time()
+    start_time = time.perf_counter()
 
     manager = multiprocessing.Manager()
     result = manager.dict()
@@ -109,7 +109,7 @@ def brute_force_crack(target_hash, hash_type, max_length=6, timeout=None):
         while True:
             if result["found"]:
                 break
-            if timeout and (time.time() - start_time > timeout):
+            if timeout and (time.perf_counter() - start_time > timeout):
                 break
             time.sleep(0.001)
     finally:
@@ -120,7 +120,7 @@ def brute_force_crack(target_hash, hash_type, max_length=6, timeout=None):
             p.terminate()
             p.join()
 
-    elapsed = time.time() - start_time
+    elapsed = time.perf_counter() - start_time
     return result["password"], elapsed, guess_counter.value
 
 

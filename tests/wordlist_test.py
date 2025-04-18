@@ -102,7 +102,7 @@ def test_wordlist_crack_timeout(tmp_path):
     ("SHA3-256", "99999", 10 ** 5),
     ("SHA3-512", "99999", 10 ** 5),
 ])
-def test_wordlist_crack_performance_precise(tmp_path, hash_type, target_word, wordlist_size):
+def test_wordlist_crack_performance(tmp_path, hash_type, target_word, wordlist_size):
     # Create a large wordlist file with numbers from 0 to wordlist_size - 1
     wordlist = tmp_path / "large_wordlist.txt"
     wordlist.write_text("\n".join(map(str, range(wordlist_size))) + "\n")
