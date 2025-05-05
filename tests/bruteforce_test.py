@@ -3,6 +3,7 @@ import time
 import psutil
 import pytest
 from backend.run_backend import brute_force_crack, hash_string
+import statistics
 
 
 # Test if brute-force cracking can correctly find known small strings
@@ -83,50 +84,55 @@ def test_brute_force_crack_timeout():
     ("SHA3-512", "abcd", 4),
 ])
 def test_brute_force_crack_performance(hash_type, target_word, max_length):
-    # Prepare the hash of the known target word
+
+    process = psutil.Process()
     target_hash = hash_string(hash_type, target_word, hash_length=32)
 
-    # Set up performance monitoring
-    process = psutil.Process()
-    memory_samples = []
-    cpu_samples = []
-    stop_event = threading.Event()
+    hps_list = []
+    mem_list = []
+    cpu_list = []
+    time_list = []
 
-    # Background thread for tracking memory and CPU usage
-    def monitor_performance():
-        while not stop_event.is_set():
-            memory_samples.append(process.memory_info().rss / (1024 * 1024))  # Convert to MB
-            cpu_samples.append(process.cpu_percent(interval=None))
-            time.sleep(0.05)
+    for _ in range(10): # repeat test 10 times
+        memory_samples = []
+        cpu_samples = []
+        stop_event = threading.Event()
 
-    # Prime CPU monitor
-    process.cpu_percent(interval=None)
-    monitor_thread = threading.Thread(target=monitor_performance)
-    monitor_thread.start()
+        def monitor_performance():
+            while not stop_event.is_set():
+                memory_samples.append(process.memory_info().rss / (1024 * 1024))  # MB
+                cpu_samples.append(process.cpu_percent(interval=None))
+                time.sleep(0.05)
 
-    # Execute the brute-force crack and time it
-    start_time = time.perf_counter()
-    result, elapsed, guesses = brute_force_crack(
-        target_hash, hash_type, max_length=max_length, timeout=60
-    )
-    end_time = time.perf_counter()
+        process.cpu_percent(interval=None)  # Warm-up
+        monitor_thread = threading.Thread(target=monitor_performance)
+        monitor_thread.start()
 
-    # Stop performance monitoring
-    stop_event.set()
-    monitor_thread.join()
+        start_time = time.perf_counter()
+        result, elapsed, guesses = brute_force_crack(
+            target_hash, hash_type, max_length=max_length, timeout=60
+        )
+        end_time = time.perf_counter()
 
-    # Calculate performance metrics
-    elapsed_time = end_time - start_time
-    hashes_per_second = guesses / elapsed_time if elapsed_time > 0 else 0
-    average_memory = sum(memory_samples) / len(memory_samples) if memory_samples else 0
-    average_cpu = sum(cpu_samples) / len(cpu_samples) if cpu_samples else 0
+        stop_event.set()
+        monitor_thread.join()
 
-    # Verify correct cracking
-    assert hash_string(hash_type, result, hash_length=32) == target_hash
-    assert guesses > 0
+        elapsed_time = end_time - start_time
+        hashes_per_second = guesses / elapsed_time if elapsed_time > 0 else 0
+        average_memory = sum(memory_samples) / len(memory_samples) if memory_samples else 0
+        average_cpu = sum(cpu_samples) / len(cpu_samples) if cpu_samples else 0
 
-    # Output the performance metrics
-    print(f"{hash_type:<15}: {hashes_per_second:,.2f} H/s | "
-          f"Average CPU: {average_cpu:.2f}% | "
-          f"Average Mem: {average_memory:.5f} MB | "
-          f"Total Time: {elapsed_time:.5f}s")
+        assert hash_string(hash_type, result, hash_length=32) == target_hash
+        assert guesses > 0
+
+        hps_list.append(hashes_per_second)
+        mem_list.append(average_memory)
+        cpu_list.append(average_cpu)
+        time_list.append(elapsed_time)
+
+    # Final average results
+    print(f"{hash_type:<15}: "
+          f"{statistics.mean(hps_list):,.2f} H/s | "
+          f"Avg CPU: {statistics.mean(cpu_list):.2f}% | "
+          f"Avg Mem: {statistics.mean(mem_list):.5f} MB | "
+          f"Avg Time: {statistics.mean(time_list):.5f}s")

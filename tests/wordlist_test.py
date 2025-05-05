@@ -3,6 +3,7 @@ import time
 import psutil
 import pytest
 from backend.run_backend import wordlist_crack, hash_string
+import statistics
 
 
 # Parameterized test to check that wordlist_crack works correctly, with multiple hash types
@@ -84,7 +85,6 @@ def test_wordlist_crack_timeout(tmp_path):
     assert elapsed >= 0
 
 
-# Performance + memory/CPU usage benchmarking test for different hash types
 @pytest.mark.parametrize("hash_type, target_word, wordlist_size", [
     ("MD5", "99999", 10 ** 5),
     ("SHA-1", "99999", 10 ** 5),
@@ -103,56 +103,58 @@ def test_wordlist_crack_timeout(tmp_path):
     ("SHA3-512", "99999", 10 ** 5),
 ])
 def test_wordlist_crack_performance(tmp_path, hash_type, target_word, wordlist_size):
-    # Create a large wordlist file with numbers from 0 to wordlist_size - 1
+
+    # Create the large wordlist once
     wordlist = tmp_path / "large_wordlist.txt"
     wordlist.write_text("\n".join(map(str, range(wordlist_size))) + "\n")
-
-    # Hash the target word with the given hash type
     target_hash = hash_string(hash_type, target_word, hash_length=32)
-
-    # Setup for performance monitoring
     process = psutil.Process()
-    memory_samples = []
-    cpu_samples = []
 
-    # Thread function to monitor memory and CPU usage periodically
-    def monitor_performance():
-        while not stop_event.is_set():
-            memory_samples.append(process.memory_info().rss / (1024 * 1024))  # in MB
-            cpu_samples.append(process.cpu_percent(interval=None))
-            time.sleep(0.05)
+    hps_list = []
+    mem_list = []
+    cpu_list = []
+    time_list = []
 
-    # Use a threading event to signal monitoring to stop
-    stop_event = threading.Event()
-    monitor_thread = threading.Thread(target=monitor_performance)
+    for _ in range(1):
+        memory_samples = []
+        cpu_samples = []
+        stop_event = threading.Event()
 
-    # Warm up the CPU stats
-    process.cpu_percent(interval=None)
-    monitor_thread.start()
+        def monitor_performance():
+            while not stop_event.is_set():
+                memory_samples.append(process.memory_info().rss / (1024 * 1024))  # MB
+                cpu_samples.append(process.cpu_percent(interval=None))
+                time.sleep(0.05)
 
-    # Run the hash cracking function and time it
-    start = time.perf_counter()
-    result = wordlist_crack(target_hash, hash_type, str(wordlist), timeout=60)
-    end = time.perf_counter()
+        process.cpu_percent(interval=None)
+        monitor_thread = threading.Thread(target=monitor_performance)
+        monitor_thread.start()
 
-    # Stop the monitoring thread
-    stop_event.set()
-    monitor_thread.join()
+        start = time.perf_counter()
+        result = wordlist_crack(target_hash, hash_type, str(wordlist), timeout=60)
+        end = time.perf_counter()
 
-    # Calculate performance metrics
-    elapsed_time = end - start
-    total_attempts = result[2]
-    hashes_per_second = total_attempts / elapsed_time if elapsed_time > 0 else 0
+        stop_event.set()
+        monitor_thread.join()
 
-    average_memory = sum(memory_samples) / len(memory_samples) if memory_samples else 0
-    average_cpu = sum(cpu_samples) / len(cpu_samples) if cpu_samples else 0
+        elapsed_time = end - start
+        total_attempts = result[2]
+        hashes_per_second = total_attempts / elapsed_time if elapsed_time > 0 else 0
 
-    # Check correctness of result
-    assert result[0] == target_word
-    assert total_attempts <= wordlist_size
+        average_memory = sum(memory_samples) / len(memory_samples) if memory_samples else 0
+        average_cpu = sum(cpu_samples) / len(cpu_samples) if cpu_samples else 0
 
-    # Print out performance statistics
-    print(f"{hash_type:<15}: {hashes_per_second:,.2f} H/s | "
-          f"Average CPU: {average_cpu:.2f}% | "
-          f"Average Mem: {average_memory:.5f} MB | "
-          f"Total Time: {elapsed_time:.5f}s")
+        assert result[0] == target_word
+        assert total_attempts <= wordlist_size
+
+        hps_list.append(hashes_per_second)
+        mem_list.append(average_memory)
+        cpu_list.append(average_cpu)
+        time_list.append(elapsed_time)
+
+    # Print final averaged stats
+    print(f"{hash_type:<15}: "
+          f"{statistics.mean(hps_list):,.2f} H/s | "
+          f"Avg CPU: {statistics.mean(cpu_list):.2f}% | "
+          f"Avg Mem: {statistics.mean(mem_list):.5f} MB | "
+          f"Avg Time: {statistics.mean(time_list):.5f}s")
