@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """
 Implementation of Ascon, an authenticated cipher and hash function
 NIST SP 800-232
