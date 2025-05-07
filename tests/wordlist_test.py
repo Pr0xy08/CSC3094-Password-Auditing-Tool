@@ -6,7 +6,7 @@ from backend.run_backend import wordlist_crack, hash_string
 import statistics
 
 
-# Parameterized test to check that wordlist_crack works correctly, with multiple hash types
+# Functionality test for wordlist function
 @pytest.mark.parametrize("hash_type,input_str", [
     ("MD5", "test"),
     ("SHA-1", "test"),
@@ -85,6 +85,7 @@ def test_wordlist_crack_timeout(tmp_path):
     assert elapsed >= 0
 
 
+# performance test for wordlist function, test data can be edited
 @pytest.mark.parametrize("hash_type, target_word, wordlist_size", [
     ("MD5", "99999", 10 ** 5),
     ("SHA-1", "99999", 10 ** 5),
@@ -103,7 +104,6 @@ def test_wordlist_crack_timeout(tmp_path):
     ("SHA3-512", "99999", 10 ** 5),
 ])
 def test_wordlist_crack_performance(tmp_path, hash_type, target_word, wordlist_size):
-
     # Create the large wordlist once
     wordlist = tmp_path / "large_wordlist.txt"
     wordlist.write_text("\n".join(map(str, range(wordlist_size))) + "\n")
@@ -115,7 +115,7 @@ def test_wordlist_crack_performance(tmp_path, hash_type, target_word, wordlist_s
     cpu_list = []
     time_list = []
 
-    for _ in range(1):
+    for _ in range(10): # repeats 10 times
         memory_samples = []
         cpu_samples = []
         stop_event = threading.Event()

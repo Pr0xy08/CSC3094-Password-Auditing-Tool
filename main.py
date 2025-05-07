@@ -57,13 +57,11 @@ class Main(ctk.CTk):
 
         self.show_run()  # Start with dashboard Page
 
-    def show_page(self, page_name):
-        """Show a specific page."""
+    def show_page(self, page_name): # shows a specific page
         frame = self.pages[page_name]
         frame.tkraise()  # Bring the frame to the front
 
-    def get_page(self, page_name):
-        """Retrieve a specific page instance."""
+    def get_page(self, page_name): # gets instance of a page
         return self.pages.get(page_name)
 
     def show_run(self):

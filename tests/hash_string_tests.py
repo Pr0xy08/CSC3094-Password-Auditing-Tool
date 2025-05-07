@@ -6,8 +6,7 @@ import pytest
 from backend.run_backend import hash_string
 
 
-# This test ensures that hash_string returns the correct, known hashes
-# for various hash algorithms when given the same input.
+# Functionality test for hash_string function, works as intended
 @pytest.mark.parametrize("hash_type,input_str,expected", [
     ("MD5", "test", "098f6bcd4621d373cade4e832627b4f6"),
     ("SHA-1", "test", "a94a8fe5ccb19ba61c4c0873d391e987982fbbd3"),
@@ -20,17 +19,21 @@ from backend.run_backend import hash_string
     ("NTLM", "test", "0CB6948805F797BF2A82807973B89537"),
     ("LM", "test", "01FC5A6BE7BC6929AAD3B435B51404EE"),
     ("SHA-224", "test", "90a3ed9e32b2aaf4c61c410eb925426119e1a9dc53d4286ade99a809"),
-    ("SHA-384", "test", "768412320f7b0aa5812fce428dc4706b3cae50e02a64caa16a782249bfe8efc4b7ef1ccb126255d196047dfedf17a0a9"),
-    ("BLAKE2b", "test", "a71079d42853dea26e453004338670a53814b78137ffbed07603a41d76a483aa9bc33b582f77d30a65e6f29a896c0411f38312e1d66e0bf16386c86a89bea572"),
+    ("SHA-384", "test",
+     "768412320f7b0aa5812fce428dc4706b3cae50e02a64caa16a782249bfe8efc4b7ef1ccb126255d196047dfedf17a0a9"),
+    ("BLAKE2b", "test",
+     "a71079d42853dea26e453004338670a53814b78137ffbed07603a41d76a483aa9bc33b582f77d30a65e6f29a896c0411f38312e1d66e0bf16386c86a89bea572"),
     ("BLAKE2s", "test", "f308fc02ce9172ad02a7d75800ecfc027109bc67987ea32aba9b8dcc7b10150e"),
     ("SHA3-256", "test", "36f028580bb02cc8272a9a020f4200e346e276ae664e45ee80745574e2f5ab80"),
-    ("SHA3-512", "test", "9ece086e9bac491fac5c1d1046ca11d737b92a2b2ebd93f005d7b710110c0a678288166e7fbe796883a4f2e9b3ca9f484f521d0ce464345cc1aec96779149c14"),
+    ("SHA3-512", "test",
+     "9ece086e9bac491fac5c1d1046ca11d737b92a2b2ebd93f005d7b710110c0a678288166e7fbe796883a4f2e9b3ca9f484f521d0ce464345cc1aec96779149c14"),
 ])
 def test_known_hashes(hash_type, input_str, expected):
     # Ensure the generated hash matches the expected result
     assert hash_string(hash_type, input_str, hash_length=len(expected)) == expected
 
 
+# Performance test for hash_string algorithms
 def test_hash_string_performance():
     # Hash types to benchmark
     hash_types = [

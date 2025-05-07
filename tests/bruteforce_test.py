@@ -6,7 +6,7 @@ from backend.run_backend import brute_force_crack, hash_string
 import statistics
 
 
-# Test if brute-force cracking can correctly find known small strings
+# Functionality brute force test
 @pytest.mark.parametrize("hash_type,input_str,max_length", [
     ("MD5", "ab", 2),
     ("SHA-1", "ab", 2),
@@ -93,7 +93,7 @@ def test_brute_force_crack_performance(hash_type, target_word, max_length):
     cpu_list = []
     time_list = []
 
-    for _ in range(10): # repeat test 10 times
+    for i in range(10): # repeat test 10 times, this can be changed
         memory_samples = []
         cpu_samples = []
         stop_event = threading.Event()
