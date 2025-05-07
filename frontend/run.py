@@ -77,7 +77,7 @@ class Run(ctk.CTkFrame):
         )
         self.run_button.pack(padx=25, pady=25, fill="x")
 
-        # Loading indicator (Initially hidden)
+        # Loading indicator
         self.loading_label = ctk.CTkLabel(self, text="", font=("Arial", 14), text_color="white")
         self.loading_label.pack(pady=10)
         self.loading_label.pack_forget()  # Hide it initially
@@ -104,7 +104,7 @@ class Run(ctk.CTkFrame):
         if self.wordlist_path:
             self.upload_wordlist.configure(text="Wordlist Uploaded", fg_color="green")
 
-    # Function to run the cracking process in the background thread
+    # Function to run the cracking audit in the background thread
     def run_crack(self):
         mode = self.select_mode.get()
         hash_type = self.select_hash_type.get()
@@ -150,7 +150,7 @@ class Run(ctk.CTkFrame):
         # Call this method again in 500ms (adjustable)
         self.after(500, self.animate_loading_dots)
 
-    # Function to display results and hide loading label
+    # Function to display results and reset run page
     def display_results(self, result):
         # Navigate to the Results page and pass the result
         self.controller.get_page("Results").display_results(result)
