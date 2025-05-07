@@ -9,11 +9,10 @@ from ASCON.ascon import ascon_hash
 from passlib.hash import lmhash, nthash
 
 
-# TODO: make performance of both functions better (GPU or more CPU optimisation)
-# TODO: Look into ASCON overheads and making it faster
+# TODO: make performance of both functions better (Implement GPU acceleration and look into ASCON implementation methods)
 
-def hash_string(hash_type, string,
-                hash_length):  # hash type = chosen type, string = string to hash, hash_length = length of target hash
+def hash_string(hash_type, string, # takes a string and hashes it to the given hash type and hash length
+                hash_length):
     if hash_type == "MD5":
         return hashlib.md5(string.encode()).hexdigest()  # hash to md5
     elif hash_type == "SHA-1":
@@ -23,12 +22,12 @@ def hash_string(hash_type, string,
     elif hash_type == "SHA-256":
         return hashlib.sha256(string.encode()).hexdigest()  # hash to sha256
     elif hash_type == "SHA-384":
-        return hashlib.sha384(string.encode()).hexdigest()  # newly added - hash to sha-384
+        return hashlib.sha384(string.encode()).hexdigest()  # hash to sha-384
     elif hash_type == "SHA-512":
         return hashlib.sha512(string.encode()).hexdigest()  # hash to sha512
     elif hash_type == "Ascon-Hash256":
         return ascon_hash(message=string.encode(), variant="Ascon-Hash256",
-                          hashlength=32).hex()  # hash to ascon 256, fixed hash length of 32
+                          hashlength=32).hex()  # ascon hash 256
     elif hash_type == "Ascon-XOF128":
         return ascon_hash(message=string.encode(), variant="Ascon-XOF128",
                           hashlength=hash_length // 2).hex()  # hash to ascon xof128
@@ -36,17 +35,17 @@ def hash_string(hash_type, string,
         return ascon_hash(message=string.encode(), variant="Ascon-CXOF128",
                           hashlength=hash_length // 2).hex()  # hash to ascon cxof128
     elif hash_type == "NTLM":
-        return nthash.hash(string).upper()
+        return nthash.hash(string).upper() # hash to ntlm
     elif hash_type == "LM":
-        return lmhash.hash(string).upper()  # hash to ntlm
-    elif hash_type == "BLAKE2b": # newly added both BLAKE2b and 2s 512-bit and 256-bit respectively
-        return hashlib.blake2b(string.encode()).hexdigest()
+        return lmhash.hash(string).upper()  # hash to lm
+    elif hash_type == "BLAKE2b":
+        return hashlib.blake2b(string.encode()).hexdigest() # hash to BLAKE2b
     elif hash_type == "BLAKE2s":
-        return hashlib.blake2s(string.encode()).hexdigest()
-    elif hash_type == "SHA3-256": # also newly added both SHA-3 256 and 512
-        return hashlib.sha3_256(string.encode()).hexdigest()
+        return hashlib.blake2s(string.encode()).hexdigest()  # hash to BLAKE2s
+    elif hash_type == "SHA3-256":
+        return hashlib.sha3_256(string.encode()).hexdigest() # hash to SHA3-256
     elif hash_type == "SHA3-512":
-        return hashlib.sha3_512(string.encode()).hexdigest()
+        return hashlib.sha3_512(string.encode()).hexdigest() # hash to SHA3-512
     else:
         raise ValueError("Unsupported hash type")
 
@@ -79,11 +78,11 @@ def generate_attempts(queue, chars, max_length, stop_event):
         pass
 
 
-def brute_force_crack(target_hash, hash_type, max_length=6, timeout=None):
+def brute_force_crack(target_hash, hash_type, max_length=6, timeout=None): # brute force audit function
     chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-    start_time = time.perf_counter()
+    start_time = time.perf_counter() # begin timer
 
-    manager = multiprocessing.Manager()
+    manager = multiprocessing.Manager() # multi processing
     result = manager.dict()
     result["password"] = None
     result["found"] = False
@@ -121,23 +120,23 @@ def brute_force_crack(target_hash, hash_type, max_length=6, timeout=None):
             p.join()
 
     elapsed = time.perf_counter() - start_time
-    return result["password"], elapsed, guess_counter.value
+    return result["password"], elapsed, guess_counter.value # return results
 
 
-def wordlist_crack(target_hash, hash_type, wordlist_path, timeout=None):
-    start_time = time.perf_counter()
+def wordlist_crack(target_hash, hash_type, wordlist_path, timeout=None): # function for wordlist audit
+    start_time = time.perf_counter() # begin counter
     timeout_threshold = start_time + timeout if timeout else None
     guesses = 0
     target_len = len(target_hash)
 
-    with open(wordlist_path, 'r', encoding='utf-8', errors='ignore') as file:
+    with open(wordlist_path, 'r', encoding='utf-8', errors='ignore') as file: # opens wordlist
         for line in file:
             word = line.rstrip('\n')
-            guesses += 1
+            guesses += 1 # strips each and appends to counter
             if hash_string(hash_type, word, target_len) == target_hash:
-                elapsed = time.perf_counter() - start_time
+                elapsed = time.perf_counter() - start_time # finish if word found
                 return word, elapsed, guesses
-            if timeout_threshold and time.perf_counter() > timeout_threshold:
+            if timeout_threshold and time.perf_counter() > timeout_threshold: # continue till timeout
                 return None, time.perf_counter() - start_time, guesses
 
     return None, time.perf_counter() - start_time, guesses
@@ -169,7 +168,7 @@ def monitor_usage_periodically(log_file="usage_log.txt"):
             time.sleep(0.0001)  # interval between next log, still need to tweak this
 
 
-def run_cracker(mode, algorithm, target_hash_path, wordlist_path=None, timeout=None):
+def run_audit(mode, algorithm, target_hash_path, wordlist_path=None, timeout=None): # function tied to run button
     log_file = "usage_log.txt"
 
     # Clear or create the log file
@@ -222,6 +221,7 @@ def run_cracker(mode, algorithm, target_hash_path, wordlist_path=None, timeout=N
             "time_taken": elapsed
         }
 
+    # calculate overall time
     overall_finish_time = time.time()
     overall_time_taken = overall_finish_time - overall_start_time
 
@@ -234,6 +234,7 @@ def run_cracker(mode, algorithm, target_hash_path, wordlist_path=None, timeout=N
     monitor_process.terminate()
     monitor_process.join()
 
+    # returns all results
     return {
         "results": results,
         "overall_info": {

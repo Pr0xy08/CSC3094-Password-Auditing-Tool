@@ -26,7 +26,7 @@ class Main(ctk.CTk):
         self.sidebar.grid_rowconfigure(4, weight=1)  # Push logout button to bottom
 
         # Sidebar Title
-        self.logo_label = ctk.CTkLabel(self.sidebar, text="My App", font=("Arial", 20, "bold"))
+        self.logo_label = ctk.CTkLabel(self.sidebar, text="ASCON Audit", font=("Arial", 20, "bold"))
         self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
 
         # Sidebar Buttons

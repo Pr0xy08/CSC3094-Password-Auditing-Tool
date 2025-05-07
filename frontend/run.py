@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from backend.run_backend import upload_file, run_cracker
+from backend.run_backend import upload_file, run_audit
 import threading
 
 
@@ -130,7 +130,7 @@ class Run(ctk.CTkFrame):
 
     # Function that runs the cracker in the background and updates GUI once done
     def run_crack_in_background(self, mode, hash_type, timeout):
-        result = run_cracker(mode, hash_type, self.target_hash_path, self.wordlist_path, timeout)
+        result = run_audit(mode, hash_type, self.target_hash_path, self.wordlist_path, timeout)
 
         # Update GUI safely after processing is done
         self.after(0, self.display_results, result)

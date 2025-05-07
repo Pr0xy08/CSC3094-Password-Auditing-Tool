@@ -3,9 +3,9 @@ import customtkinter as ctk
 import matplotlib.pyplot as plt
 from collections import Counter
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import zxcvbn  # For password strength scoring
+import zxcvbn
 import pandas as pd
-import mplcursors  # Import the library
+import mplcursors
 import matplotlib
 
 matplotlib.use('TkAgg')  # Use TkAgg backend for matplotlib
@@ -72,8 +72,7 @@ class Results(ctk.CTkFrame):
         # Initially set the frame to be empty
         self.graph_canvas = None
 
-    def display_results(self, results):
-        """Clear and display the results in the textboxes and update graphs."""
+    def display_results(self, results):  # displays results in text boxes and updates graphs
         self.results_textbox.delete("1.0", "end")
         self.overall_results_textbox.delete("1.0", "end")
 
@@ -109,46 +108,44 @@ class Results(ctk.CTkFrame):
         # Automatically update the graphs with new data
         self.update_graphs(results)
 
-    def update_graphs(self, results):
-        """Automatically update the graphs with the new data."""
-        self._clear_graph_frame()  # Clear the current graph
+    def update_graphs(self, results):  # updates graph with most current data
+        self._clear_graph_frame()  # Clear the old graph
 
         # Update the graphs based on the new data
-        self.display_success_rate_pie_chart(results)  # Update the success rate pie chart
-        self.show_character_frequency_graph()  # Update the character frequency graph
-        self.show_pqi_graph()  # Update the PQI graph
-        self.show_password_zxcvbn_graph()  # Update the zxcvbn password strength graph
-        self.show_system_usage_graph()  # Update the system usage graph
-        self.show_password_length_graph()  # Update the password length graph
+        self.show_success_rate_pie_chart()
+        self.show_character_frequency_graph()
+        self.show_pqi_graph()
+        self.show_password_zxcvbn_graph()
+        self.show_system_usage_graph()
+        self.show_password_length_graph()
 
     def show_character_frequency_graph(self):
         self._clear_graph_frame()
-        self.display_character_frequency_graph(self.results)
+        self.generate_character_frequency_graph(self.results)
 
     def show_pqi_graph(self):
         self._clear_graph_frame()
-        self.display_password_quality_index_graph(self.results)
+        self.generate_password_quality_index_graph(self.results)
 
     def show_password_zxcvbn_graph(self):
         self._clear_graph_frame()
-        self.display_password_zxcvbn_graph(self.results)
+        self.generate_password_zxcvbn_graph(self.results)
 
     def show_system_usage_graph(self):
         self._clear_graph_frame()
-        self.visualize_system_usage()
+        self.generate_system_usage()
 
     def show_password_length_graph(self):
         self._clear_graph_frame()
-        self.display_password_length_graph(self.results)
+        self.generate_password_length_graph(self.results)
 
-    # Function to display the Success Rate Pie Chart
     def show_success_rate_pie_chart(self):
         self._clear_graph_frame()
-        self.display_success_rate_pie_chart(self.results)
+        self.generate_success_rate_pie_chart(self.results)
 
-    def display_character_frequency_graph(self, results):
+    def generate_character_frequency_graph(self, results):  # character freq graph of all characters in passwords found
         passwords = [data['password'] for data in results['results'].values() if
-                     data['password'] != "Password not found."]
+                     data['password'] != "Password not found."]  # don't include passwords not found
         all_passwords = "".join(passwords)
         char_count = Counter(all_passwords)
         sorted_char_count = dict(sorted(char_count.items(), key=lambda x: x[1]))
@@ -157,15 +154,15 @@ class Results(ctk.CTkFrame):
         sorted_keys = list(sorted_char_count.keys())
         sorted_values = list(sorted_char_count.values())
 
-        # Set background color to match application dark theme (#2b2b2b)
+        # plot graph
         fig, ax = plt.subplots(figsize=(10, 5))
-        fig.patch.set_facecolor('#2b2b2b')  # Set figure background color
-        ax.set_facecolor('#2b2b2b')  # Set axes background color
-        bars = ax.bar(sorted_keys, sorted_values, color='lightgreen')  # Bars in a light color
+        fig.patch.set_facecolor('#2b2b2b')
+        ax.set_facecolor('#2b2b2b')
+        bars = ax.bar(sorted_keys, sorted_values, color='lightgreen')
         ax.set_xlabel('Characters', color='white')
         ax.set_ylabel('Frequency', color='white')
         ax.set_title('Character Frequency Distribution', color='white')
-        ax.tick_params(axis='both', labelcolor='white')  # Set tick label color to white
+        ax.tick_params(axis='both', labelcolor='white')
 
         # Add tooltips with mplcursors
         mplcursors.cursor(bars, hover=True).connect(
@@ -179,26 +176,25 @@ class Results(ctk.CTkFrame):
         # Close the figure after rendering it
         plt.close(fig)
 
-    # Password Quality Index Graph
-    def display_password_quality_index_graph(self, results):
-        def calculate_pqi(password):
+    def generate_password_quality_index_graph(self, results):  # Password Quality Index Graph
+        def calculate_pqi(password):  # function for finding pqi
             length_score = min(len(password) / 12, 1)
             unique_chars = len(set(password)) / len(password) if password else 0
             return length_score * unique_chars * 100
 
-        passwords = [data['password'] for data in results['results'].values() if
+        passwords = [data['password'] for data in results['results'].values() if  # don't include passwords not found
                      data['password'] != "Password not found."]
-        pqi_scores = {pwd: calculate_pqi(pwd) for pwd in passwords}
-        sorted_pqi = dict(sorted(pqi_scores.items(), key=lambda x: x[1]))
+        pqi_scores = {pwd: calculate_pqi(pwd) for pwd in passwords}  # calculate scores for each
+        sorted_pqi = dict(sorted(pqi_scores.items(), key=lambda x: x[1]))  # sort from the highest score to lowest
 
-        # Set background color to match application dark theme (#2b2b2b)
+        # plot graph
         fig, ax = plt.subplots(figsize=(10, 5))
-        fig.patch.set_facecolor('#2b2b2b')  # Set figure background color
-        ax.set_facecolor('#2b2b2b')  # Set axes background color
-        bars = ax.barh(list(sorted_pqi.keys()), list(sorted_pqi.values()), color='lightcoral')  # Bars in a light color
+        fig.patch.set_facecolor('#2b2b2b')
+        ax.set_facecolor('#2b2b2b')
+        bars = ax.barh(list(sorted_pqi.keys()), list(sorted_pqi.values()), color='lightcoral')
         ax.set_xlabel('Password Quality Index (PQI)', color='white')
         ax.set_title('PQI for Each Password', color='white')
-        ax.tick_params(axis='both', labelcolor='white')  # Set tick label color to white
+        ax.tick_params(axis='both', labelcolor='white')
 
         # Add tooltips with mplcursors
         mplcursors.cursor(bars, hover=True).connect(
@@ -212,23 +208,22 @@ class Results(ctk.CTkFrame):
         # Close the figure after rendering it
         plt.close(fig)
 
-    # Password Strength (zxcvbn) Graph
-    def display_password_zxcvbn_graph(self, results):
-        passwords = [data['password'] for data in results['results'].values() if
+    def generate_password_zxcvbn_graph(self, results):  # Password Strength (zxcvbn) Graph
+        passwords = [data['password'] for data in results['results'].values() if  # dont include passwords not found
                      data['password'] != "Password not found."]
 
         # Use zxcvbn to calculate password strength score (0-4)
         strength_scores = {pwd: zxcvbn.zxcvbn(pwd)['score'] for pwd in passwords}
         sorted_strength = dict(sorted(strength_scores.items(), key=lambda x: x[1]))
 
-        # Set background color to match application dark theme (#2b2b2b)
+        # plot graph
         fig, ax = plt.subplots(figsize=(10, 5))
-        fig.patch.set_facecolor('#2b2b2b')  # Set figure background color
-        ax.set_facecolor('#2b2b2b')  # Set axes background color
-        bars = ax.barh(list(sorted_strength.keys()), list(sorted_strength.values()), color='royalblue')  # Blue bars
+        fig.patch.set_facecolor('#2b2b2b')
+        ax.set_facecolor('#2b2b2b')
+        bars = ax.barh(list(sorted_strength.keys()), list(sorted_strength.values()), color='royalblue')
         ax.set_xlabel('Password Strength (0-4)', color='white')
         ax.set_title('Password Strength for Each Password', color='white')
-        ax.tick_params(axis='both', labelcolor='white')  # Set tick label color to white
+        ax.tick_params(axis='both', labelcolor='white')
 
         # Add tooltips with mplcursors
         mplcursors.cursor(bars, hover=True).connect(
@@ -242,8 +237,8 @@ class Results(ctk.CTkFrame):
         # Close the figure after rendering it
         plt.close(fig)
 
-    def visualize_system_usage(self, log_file="usage_log.txt"):
-        # Read the timestamp, cpu usage and ram usage data into a DataFrame
+    def generate_system_usage(self, log_file="usage_log.txt"):
+        # Read the timestamp, cpu usage and ram usage data into a DataFrame (usage log)
         df = pd.read_csv(log_file, names=["timestamp", "cpu_usage", "ram_usage"])
 
         # Convert timestamps to readable format
@@ -251,9 +246,9 @@ class Results(ctk.CTkFrame):
 
         # Plot the data
         fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 5))
-        fig.patch.set_facecolor('#2b2b2b')  # Set figure background color
-        ax1.set_facecolor('#2b2b2b')  # Set axes background color
-        ax2.set_facecolor('#2b2b2b')  # Set axes background color
+        fig.patch.set_facecolor('#2b2b2b')
+        ax1.set_facecolor('#2b2b2b')
+        ax2.set_facecolor('#2b2b2b')
 
         # Plot CPU usage
         ax1.plot(df['timestamp'], df['cpu_usage'], label='CPU Usage (%)', color='blue')
@@ -283,41 +278,40 @@ class Results(ctk.CTkFrame):
         # Close the figure after rendering it
         plt.close(fig)  # Prevents the figure from staying open in memory
 
-    def display_password_length_graph(self, results):
-        """Displays a histogram of password lengths with tooltips."""
-        passwords = [data['password'] for data in results['results'].values() if
-                        data['password'] != "Password not found."]
+    def generate_password_length_graph(self, results):  # password length histogram
+        passwords = [data['password'] for data in results['results'].values() if  # don't include passwords not found
+                     data['password'] != "Password not found."]
 
-        password_lengths = [len(pwd) for pwd in passwords]
+        password_lengths = [len(pwd) for pwd in passwords]  # get length for each
 
-        # If password_lengths is empty, just return or display an empty graph
-        if not password_lengths:
+        if not password_lengths:  # If password_lengths is empty, just return or display an empty graph
+            # plot graph
             fig, ax = plt.subplots(figsize=(10, 5))
-            fig.patch.set_facecolor('#2b2b2b')  # Set figure background color
-            ax.set_facecolor('#2b2b2b')  # Set axes background color
+            fig.patch.set_facecolor('#2b2b2b')
+            ax.set_facecolor('#2b2b2b')
             ax.set_xlabel('Password Length', color='white')
             ax.set_ylabel('Frequency', color='white')
             ax.set_title('Distribution of Password Lengths', color='white')
-            ax.tick_params(axis='both', labelcolor='white')  # Set tick label color to white
-            ax.set_xticks([])  # Remove x-axis ticks for an empty graph
-            ax.set_yticks([])  # Remove y-axis ticks for an empty graph
+            ax.tick_params(axis='both', labelcolor='white')
+            ax.set_xticks([])
+            ax.set_yticks([])
             self.graph_canvas = FigureCanvasTkAgg(fig, self.graph_frame)
             self.graph_canvas.get_tk_widget().pack()
             self.graph_canvas.draw()
             plt.close(fig)  # Prevents the figure from staying open in memory
             return
 
-            # Proceed to plot the histogram if password_lengths is not empty
+        # Proceed to plot the histogram if password_lengths is not empty
         fig, ax = plt.subplots(figsize=(10, 5))
-        fig.patch.set_facecolor('#2b2b2b')  # Set figure background color
-        ax.set_facecolor('#2b2b2b')  # Set axes background color
+        fig.patch.set_facecolor('#2b2b2b')
+        ax.set_facecolor('#2b2b2b')
         n, bins, patches = ax.hist(password_lengths, bins=range(min(password_lengths), max(password_lengths) + 2),
-                                       color='skyblue', edgecolor='white', alpha=0.75)
+                                   color='skyblue', edgecolor='white', alpha=0.75)
 
         ax.set_xlabel('Password Length', color='white')
         ax.set_ylabel('Frequency', color='white')
         ax.set_title('Distribution of Password Lengths', color='white')
-        ax.tick_params(axis='both', labelcolor='white')  # Set tick label color to white
+        ax.tick_params(axis='both', labelcolor='white')
 
         # Add tooltips using mplcursors
         mplcursors.cursor(patches, hover=True).connect(
@@ -333,9 +327,7 @@ class Results(ctk.CTkFrame):
         # Close the figure after rendering it
         plt.close(fig)  # Prevents the figure from staying open in memory
 
-        # Function to create the Success Rate Pie Chart
-
-    def display_success_rate_pie_chart(self, results):
+    def generate_success_rate_pie_chart(self, results): # Function to create the Success Rate Pie Chart
         # Define success and failure counts
         success_count = sum(1 for data in results['results'].values() if data['password'] != "Password not found.")
         failure_count = len(results['results']) - success_count
@@ -345,16 +337,12 @@ class Results(ctk.CTkFrame):
         sizes = [success_count, failure_count]
         colors = ['#4CAF50', '#F44336']  # Green and red
 
-        # Set background color to match application dark theme (#2b2b2b)
+        # plot pie
         fig, ax = plt.subplots(figsize=(10, 5))
-        fig.patch.set_facecolor('#2b2b2b')  # Set figure background color
-        ax.set_facecolor('#2b2b2b')  # Set axes background color
-
-        # Create the pie chart
+        fig.patch.set_facecolor('#2b2b2b')
+        ax.set_facecolor('#2b2b2b')
         ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90, colors=colors,
                textprops={'color': 'white'}, wedgeprops={'edgecolor': 'black'})
-
-        # Set title
         ax.set_title('Success Rate', color='white')
 
         # Display the graph in the tkinter window
@@ -366,6 +354,5 @@ class Results(ctk.CTkFrame):
         plt.close(fig)  # Prevents the figure from staying open in memory
 
     def _clear_graph_frame(self):
-        """Clears the current graph in the graph frame."""
         for widget in self.graph_frame.winfo_children():
             widget.destroy()
